@@ -25,7 +25,10 @@ public class Member extends BaseEntity {
     private String profileImage;
 
     @Builder
-    public Member(Long id) {
+    public Member(Long id, Long kakaoId, String nickname, String profileImage) {
         this.id = id;
+        this.kakaoId = kakaoId;
+        this.nickname = nickname;
+        this.profileImage = profileImage;
     }
 }
