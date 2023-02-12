@@ -3,6 +3,7 @@ package com.ilkda.server.auth.service;
 import com.ilkda.server.auth.dto.KakaoUserInfo;
 import com.ilkda.server.auth.dto.TokenDTO;
 import com.ilkda.server.exception.UnauthorizedException;
+import com.ilkda.server.member.model.Role;
 import com.ilkda.server.security.provider.JwtProvider;
 import com.ilkda.server.member.model.Member;
 import com.ilkda.server.member.repository.MemberRepository;
@@ -72,6 +73,7 @@ public class AuthService {
                 .kakaoId(kakaoUserInfo.getId())
                 .nickname(kakaoUserInfo.getKakaoAccount().getProfile().getNickname())
                 .profileImage(kakaoUserInfo.getKakaoAccount().getProfile().getProfile_image_url())
+                .role(Role.ROLE_USER)
                 .build();
         memberRepository.save(member);
         return member.getId();
