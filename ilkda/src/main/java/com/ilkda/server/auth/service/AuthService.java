@@ -3,7 +3,7 @@ package com.ilkda.server.auth.service;
 import com.ilkda.server.auth.dto.KakaoUserInfo;
 import com.ilkda.server.auth.dto.TokenDTO;
 import com.ilkda.server.exception.UnauthorizedException;
-import com.ilkda.server.jwt.JwtProvider;
+import com.ilkda.server.security.provider.JwtProvider;
 import com.ilkda.server.member.model.Member;
 import com.ilkda.server.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
 
-    public TokenDTO registerUser(String kakaoToken) throws ParseException {
+    public TokenDTO registerUser(String kakaoToken) {
         // 1. Access token으로 카카오에서 사용자 정보 가져오기
         KakaoUserInfo kakaoUserInfo = getKakaoUserInfo(kakaoToken);
 
@@ -41,22 +41,28 @@ public class AuthService {
         return tokenDTO;
     }
 
-    public KakaoUserInfo getKakaoUserInfo(String accessToken) throws ParseException {
+    public KakaoUserInfo getKakaoUserInfo(String accessToken)  {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", String.format("Bearer %s", accessToken));
         HttpEntity request = new HttpEntity(headers);
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.exchange("https://kapi.kakao.com/v2/user/me HTTP/1.1",
-                HttpMethod.GET,
-                request,
-                String.class);
-
-        if(response.getStatusCode().is4xxClientError()
-                || response.getStatusCode().is5xxServerError())
+        ResponseEntity<String> response;
+        try {
+            response = restTemplate.exchange("https://kapi.kakao.com/v2/user/me HTTP/1.1",
+                    HttpMethod.GET,
+                    request,
+                    String.class);
+        } catch (Exception e) {
             throw new UnauthorizedException("해당 토큰의 사용자 정보를 조회할 수 없습니다.");
+        }
 
         JSONParser jsonParser = new JSONParser();
-        JSONObject jsonObject = (JSONObject) jsonParser.parse(response.getBody());
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = (JSONObject) jsonParser.parse(response.getBody());
+        } catch (ParseException p) {
+            throw new UnauthorizedException("토큰 파싱 실패");
+        }
         return new KakaoUserInfo(jsonObject);
     }
 
