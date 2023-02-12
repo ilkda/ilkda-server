@@ -28,10 +28,11 @@ public class KakaoUserInfo {
 
     public KakaoUserInfo(JSONObject object) {
         this.id = (Long) object.get("id");
+        JSONObject profile = (JSONObject) ((JSONObject) object.get("kakao_account")).get("profile");
         this.kakaoAccount = new KakaoAccount(
                 new Profile(
-                        (String) object.get("nickname"),
-                        (String) object.get("profile_image_url")
+                        (String) profile.get("nickname"),
+                        (String) profile.get("profile_image_url")
                 ));
     }
 }
