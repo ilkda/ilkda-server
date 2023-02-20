@@ -38,7 +38,7 @@ public class JwtService {
     }
 
     public static String generateAccessToken(String kakaoToken, Long memberId) {
-        Claims claims = Jwts.claims().setSubject(String.format("member%d", memberId));
+        Claims claims = Jwts.claims();
         claims.put("kakao_token", kakaoToken);
         claims.put("member_id", memberId);
         return generate(ACCESS_TOKEN_DURATION, claims);
@@ -52,19 +52,36 @@ public class JwtService {
     }
 
     public static void validateToken(String token) {
-        Claims claims;
+        if(getClaimsFromToken(token)
+                .getExpiration()
+                .before(new Date(System.currentTimeMillis())))
+            throw new UnauthorizedException("토큰이 유효하지 않습니다.");
+    }
+
+    private static Claims getClaimsFromToken(String token) {
         try {
-            claims = Jwts.parser()
+             return Jwts.parser()
                     .setSigningKey(SECRET_KEY)
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
             throw new UnauthorizedException("토큰 파싱 실패");
         }
-        if(claims.getExpiration().before(new Date(System.currentTimeMillis()))) throw new UnauthorizedException("토큰이 유효하지 않습니다.");
     }
 
-    public static Long getMemberIdFromToken(String accessToken) {
-        return ((Integer) Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(accessToken).getBody().get("member_id")).longValue();
+    public static Long getMemberIdFromToken(String token) {
+        return ((Integer) getClaimsFromToken(token).get("member_id")).longValue();
+    }
+
+    public static String getKakaoTokenFromToken(String token) {
+        return (String) getClaimsFromToken(token).get("kakao_token");
+    }
+
+    public static Date getExpirationFromToken(String token) {
+        return getClaimsFromToken(token).getExpiration();
+    }
+
+    public static boolean checkRefreshToken(String refreshToken) {
+        return System.currentTimeMillis() - getExpirationFromToken(refreshToken).getTime() <= REFRESH_TOKEN_DURATION/2;
     }
 }

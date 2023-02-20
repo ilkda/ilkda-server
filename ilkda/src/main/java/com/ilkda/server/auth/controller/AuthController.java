@@ -1,13 +1,12 @@
 package com.ilkda.server.auth.controller;
 
 import com.ilkda.server.auth.dto.LoginForm;
+import com.ilkda.server.auth.dto.RefreshForm;
 import com.ilkda.server.auth.dto.TokenDTO;
 import com.ilkda.server.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import com.ilkda.server.utils.api.ApiUtil.*;
-
-import javax.servlet.http.HttpServletRequest;
 
 @RequiredArgsConstructor
 @RestController
@@ -19,5 +18,10 @@ public class AuthController {
     @PostMapping("/login")
     public SuccessResponse<TokenDTO> login(@RequestBody LoginForm form) {
         return new SuccessResponse<>(authService.registerUser(form.getKakaoToken()));
+    }
+
+    @PostMapping("/refresh")
+    public SuccessResponse<TokenDTO> refresh(@RequestBody RefreshForm form) {
+        return new SuccessResponse<>(authService.refreshToken(form.getRefreshToken()));
     }
 }
