@@ -3,6 +3,7 @@ package com.ilkda.server.auth.service;
 import com.ilkda.server.auth.dto.KakaoUserInfo;
 import com.ilkda.server.auth.dto.TokenDTO;
 import com.ilkda.server.exception.UnauthorizedException;
+import com.ilkda.server.jwt.JwtService;
 import com.ilkda.server.member.service.MemberService;
 import com.ilkda.server.security.provider.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -20,22 +21,18 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class AuthService {
 
-    private final JwtProvider jwtProvider;
     private final MemberService memberService;
 
     public TokenDTO registerUser(String kakaoToken) {
         // 1. Access token으로 카카오에서 사용자 정보 가져오기
-        KakaoUserInfo kakaoUserInfo = getKakaoUserInfo(kakaoToken);
-
         // 2. 사용자 정보 저장하기
-        Long memberId = memberService.saveUser(kakaoUserInfo);
+        Long memberId = memberService.saveUser(getKakaoUserInfo(kakaoToken));
 
         // 3. Access token, Refresh token 발급하기
-        TokenDTO tokenDTO = new TokenDTO(
-                jwtProvider.generateAccessToken(kakaoToken, memberId),
-                jwtProvider.generateRefreshToken(kakaoToken, memberId)
+        return new TokenDTO(
+                JwtService.generateAccessToken(kakaoToken, memberId),
+                JwtService.generateRefreshToken(kakaoToken, memberId)
         );
-        return tokenDTO;
     }
 
     private KakaoUserInfo getKakaoUserInfo(String accessToken)  {

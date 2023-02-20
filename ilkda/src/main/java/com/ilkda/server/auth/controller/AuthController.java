@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import com.ilkda.server.utils.api.ApiUtil.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -18,5 +20,4 @@ public class AuthController {
     public SuccessResponse<TokenDTO> login(@RequestBody LoginForm form) {
         return new SuccessResponse<>(authService.registerUser(form.getKakaoToken()));
     }
-
 }
