@@ -1,8 +1,11 @@
 package com.ilkda.server.security.filter;
 
+import com.ilkda.server.config.MemberTokenConfig;
 import com.ilkda.server.exception.UnauthorizedException;
-import com.ilkda.server.jwt.JwtService;
-import com.ilkda.server.security.provider.token.AuthenticationToken;
+import com.ilkda.server.utils.HttpUtil;
+import com.ilkda.server.utils.jwt.JwtUtil;
+import com.ilkda.server.security.AuthenticationToken;
+import com.ilkda.server.utils.jwt.MemberJwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -21,28 +24,22 @@ import java.util.Optional;
 public class AuthenticationFilter extends GenericFilterBean {
 
     private final AuthenticationManager authenticationManager;
+    private static final String TOKEN_FIELD_MEMBER_ID = "member_id";
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
-        String accessToken = getTokenFromRequest(req);
+        String accessToken = HttpUtil.getTokenFromRequest(req);
 
         AuthenticationToken authenticationToken = AuthenticationToken.createAuthenticationToken(accessToken);
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
-        SecurityContextHolder.getContext().setAuthentication(
-                authentication
-        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        Long memberId = JwtService.getMemberIdFromToken(accessToken);
+        JwtUtil jwtUtil = new MemberJwtUtil(accessToken);
+        Long memberId = Long.parseLong(jwtUtil.getFieldFromToken(TOKEN_FIELD_MEMBER_ID, String.class));
         req.setAttribute("memberId", memberId);
 
         chain.doFilter(request, response);
     }
 
-    private String getTokenFromRequest(HttpServletRequest req) {
-        String authHeader = Optional.ofNullable(req.getHeader("Authorization"))
-                .orElseThrow(() -> new UnauthorizedException("헤더에 토큰이 없습니다."));
-        if (!authHeader.startsWith("Bearer ")) throw new UnauthorizedException("헤더에 올바른 토큰이 없습니다.");
-        return authHeader.replace("Bearer ", "");
-    }
 }

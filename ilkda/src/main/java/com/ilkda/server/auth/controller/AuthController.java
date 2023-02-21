@@ -6,7 +6,7 @@ import com.ilkda.server.auth.dto.TokenDTO;
 import com.ilkda.server.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import com.ilkda.server.utils.api.ApiUtil.*;
+import com.ilkda.server.utils.ApiUtil.*;
 
 @RequiredArgsConstructor
 @RestController

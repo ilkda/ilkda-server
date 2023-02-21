@@ -1,4 +1,4 @@
-package com.ilkda.server.utils.api;
+package com.ilkda.server.utils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

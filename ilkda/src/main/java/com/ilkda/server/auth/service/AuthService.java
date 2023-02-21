@@ -1,10 +1,12 @@
 package com.ilkda.server.auth.service;
 
+import com.ilkda.server.auth.JwtGenerator;
 import com.ilkda.server.auth.dto.KakaoUserInfo;
 import com.ilkda.server.auth.dto.TokenDTO;
 import com.ilkda.server.exception.UnauthorizedException;
-import com.ilkda.server.jwt.JwtService;
 import com.ilkda.server.member.service.MemberService;
+import com.ilkda.server.utils.jwt.JwtUtil;
+import com.ilkda.server.utils.jwt.MemberJwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -16,39 +18,40 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import static com.ilkda.server.jwt.JwtService.*;
+import java.util.HashMap;
+import java.util.Map;
+
 
 @RequiredArgsConstructor
 @Service
 public class AuthService {
 
     private final MemberService memberService;
+    private static final String TOKEN_FIELD_MEMBER_ID = "member_id";
 
     public TokenDTO registerUser(String kakaoToken) {
         // 1. Access token으로 카카오에서 사용자 정보 가져오기
         // 2. 사용자 정보 저장하기
-        Long memberId = memberService.saveUser(getKakaoUserInfo(kakaoToken));
+        String memberId = Long.toString(memberService.saveUser(getKakaoUserInfo(kakaoToken)));
 
         // 3. Access token, Refresh token 발급하기
-        return new TokenDTO(
-                generateAccessToken(kakaoToken, memberId),
-                generateRefreshToken(kakaoToken, memberId)
-        );
+        Map<String, Object> accessTokenClaims = new HashMap<>();
+        accessTokenClaims.put(TOKEN_FIELD_MEMBER_ID, memberId);
+        String accessToken = JwtGenerator.generateAccessToken(accessTokenClaims);
+
+        Map<String, Object> refreshTokenClaims = new HashMap<>();
+        refreshTokenClaims.put(TOKEN_FIELD_MEMBER_ID, memberId);
+        String refreshToken = JwtGenerator.generateRefreshToken(refreshTokenClaims);
+
+        return new TokenDTO(accessToken, refreshToken);
     }
 
     public TokenDTO refreshToken(String refreshToken) {
-        JwtService.validateToken(refreshToken);
-        String kakaoToken = getKakaoTokenFromToken(refreshToken);
-        Long memberId = getMemberIdFromToken(refreshToken);
-        String accessToken = generateAccessToken(
-                kakaoToken,
-                memberId
-        );
-        if(!checkRefreshToken(refreshToken))
-            refreshToken = generateRefreshToken(
-                    kakaoToken,
-                    memberId
-            );
+        JwtUtil jwtUtil = new MemberJwtUtil(refreshToken);
+
+        String accessToken = JwtGenerator.refreshAccessToken(jwtUtil);
+        refreshToken = JwtGenerator.refreshRefreshToken(jwtUtil);
+
         return new TokenDTO(accessToken, refreshToken);
     }
 
@@ -77,3 +80,5 @@ public class AuthService {
         return new KakaoUserInfo(jsonObject);
     }
 }
+
+

@@ -7,6 +7,8 @@ import org.springframework.security.core.userdetails.User;
 
 public class CustomUserDetails extends User {
 
+    /** 카카오 토큰을 통해 memberId를 포함한 ACCESS TOKEN을 발급하고,
+    * 인증 수단으로 ACCESS TOKEN만을 사용하므로 password는 따로 설정하지 않습니다.*/
     public CustomUserDetails(Member member) {
         super(String.valueOf(member.getId()), "",
                 AuthorityUtils.createAuthorityList(member.getRole().toString()));

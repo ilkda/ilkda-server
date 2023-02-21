@@ -1,4 +1,4 @@
-package com.ilkda.server.security.provider.token;
+package com.ilkda.server.security;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
