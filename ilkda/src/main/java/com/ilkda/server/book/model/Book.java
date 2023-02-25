@@ -1,33 +1,29 @@
 package com.ilkda.server.book.model;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.ilkda.server.base.BaseEntity;
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-/*
-* BaseEntity 상속 추가 예정*/
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Book {
+public class Book extends BaseEntity {
 
     @Id @GeneratedValue
     private Long id;
-    private Long aladinId;
+    private String isbn13;
     private String title;
     private String author;
     private String cover;
-    private int page;
+    private Long page;
 
     @Builder
-    public Book(Long id, Long aladinId, String title, String author, String cover, int page) {
+    public Book(Long id, String isbn13, String title, String author, String cover, Long page) {
         this.id = id;
-        this.aladinId = aladinId;
+        this.isbn13 = isbn13;
         this.title = title;
         this.author = author;
         this.cover = cover;
