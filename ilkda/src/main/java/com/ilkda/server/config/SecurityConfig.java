@@ -48,10 +48,10 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .requestMatchers()
-                .antMatchers("/api/v1/member/**")
+                .antMatchers("/api/v1/books/**")
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/v1/member/**").hasRole("USER")
+                .antMatchers("/api/v1/books/**").hasRole("ROLE")
                 .and()
                 .addFilterAfter(authenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
                 .build();
