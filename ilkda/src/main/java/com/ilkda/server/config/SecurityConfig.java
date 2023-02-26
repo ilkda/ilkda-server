@@ -52,8 +52,8 @@ public class SecurityConfig {
                 .antMatchers("/api/v1/records/**")
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/v1/books/**").hasRole("ROLE")
-                .antMatchers("/api/v1/records/**").hasRole("ROLE")
+                .antMatchers("/api/v1/books/**").hasRole("USER")
+                .antMatchers("/api/v1/records/**").hasRole("USER")
                 .and()
                 .addFilterAfter(authenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
                 .build();
