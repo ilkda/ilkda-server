@@ -46,6 +46,7 @@ public class RecordController {
                         .author(record.getBook().getAuthor())
                         .bookPage(record.getBook().getPage())
                         .readPage(record.getReadPage())
+                        .text(record.getText())
                         .build()
         );
     }

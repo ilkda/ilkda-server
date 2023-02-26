@@ -17,9 +17,10 @@ public class RecordDTO {
     private String cover;
     private Long bookPage;
     private Long readPage;
+    private String text;
 
     @Builder
-    public RecordDTO(Long id, String title, String author, String cover, Long bookPage, Long readPage) {
+    public RecordDTO(Long id, String title, String author, String cover, Long bookPage, Long readPage, String text) {
         this.id = id;
         this.title = title;
         this.author = author;
@@ -35,7 +36,8 @@ public class RecordDTO {
                 i.getBook().getAuthor(),
                 i.getBook().getCover(),
                 i.getBook().getPage(),
-                i.getReadPage()
+                i.getReadPage(),
+                i.getText()
         )).collect(Collectors.toList());
     }
 }
