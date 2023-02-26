@@ -61,8 +61,7 @@ public class RecordService {
     public Long updateReadPage(Long recordId, Long page) {
         Record record = getRecordReading(recordId);
 
-        if(page < 0 || page > record.getBook().getPage())
-            throw new IllegalStateException("해당 페이지로 업데이트 할 수 없습니다.");
+        validateUpdateReadPage(record, page);
 
         record.updateReadPage(page);
 
@@ -77,6 +76,14 @@ public class RecordService {
     private void validateDuplication(Member member, Book book) {
         if(recordRepository.existsRecordByBookAndMember(book, member))
             throw new IllegalStateException("이미 존재하는 읽기입니다.");
+    }
+
+    private void validateUpdateReadPage(Record record, Long updatePage) {
+        if(record.getComplete())
+            throw new IllegalStateException("끝난 읽기를 업데이트 할 수 없습니다.");
+
+        if(updatePage < 0 || updatePage > record.getBook().getPage())
+            throw new IllegalStateException("해당 페이지로 업데이트 할 수 없습니다.");
     }
 
     private Member findMember(Long memberId) {

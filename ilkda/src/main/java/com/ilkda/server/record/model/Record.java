@@ -32,7 +32,7 @@ public class Record extends BaseEntity {
 
     private Long readPage = 0L;
 
-    private boolean complete = false;
+    private Boolean complete = false;
 
     @Builder
     public Record(Long id, Member member, Book book) {
