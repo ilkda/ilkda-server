@@ -50,6 +50,13 @@ public class RecordService {
         return recordRepository.findAllByMemberAndComplete(member, false);
     }
 
+    public Record getRecordReading(Long recordId) {
+        return recordRepository.findById(recordId)
+                .orElseThrow(() -> {
+                    throw new NotFoundException("존재하지 않는 읽기입니다.");
+                });
+    }
+
     private void validateReadCount(Member member) {
         if(recordRepository.countAllByMemberAndComplete(member, false) >= MAX_READ_COUNT)
             throw new IllegalStateException("최대 읽기 수를 초과했습니다");
