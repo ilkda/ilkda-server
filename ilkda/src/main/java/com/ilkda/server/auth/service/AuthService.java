@@ -32,7 +32,7 @@ public class AuthService {
     public TokenDTO registerUser(String kakaoToken) {
         // 1. Access token으로 카카오에서 사용자 정보 가져오기
         // 2. 사용자 정보 저장하기
-        String memberId = Long.toString(memberService.saveUser(getKakaoUserInfo(kakaoToken)));
+        String memberId = Long.toString(memberService.createUser(getKakaoUserInfo(kakaoToken)));
 
         // 3. Access token, Refresh token 발급하기
         Map<String, Object> accessTokenClaims = new HashMap<>();

@@ -1,11 +1,7 @@
 package com.ilkda.server.security.filter;
 
-import com.ilkda.server.config.MemberTokenConfig;
-import com.ilkda.server.exception.UnauthorizedException;
 import com.ilkda.server.utils.HttpUtil;
-import com.ilkda.server.utils.jwt.JwtUtil;
 import com.ilkda.server.security.AuthenticationToken;
-import com.ilkda.server.utils.jwt.MemberJwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -18,7 +14,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 public class AuthenticationFilter extends GenericFilterBean {
@@ -34,10 +29,6 @@ public class AuthenticationFilter extends GenericFilterBean {
         AuthenticationToken authenticationToken = AuthenticationToken.createAuthenticationToken(accessToken);
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        JwtUtil jwtUtil = new MemberJwtUtil(accessToken);
-        Long memberId = Long.parseLong(jwtUtil.getFieldFromToken(TOKEN_FIELD_MEMBER_ID, String.class));
-        req.setAttribute("memberId", memberId);
 
         chain.doFilter(request, response);
     }
