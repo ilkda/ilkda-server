@@ -23,9 +23,13 @@ public class RecordService {
     private final MemberRepository memberRepository;
     private final BookRepository bookRepository;
 
+    private final int MAX_READ_COUNT = 5;
+
     @Transactional
     public Long saveRecord(Long memberId, RegisterRecordForm form) {
         Member member = findMember(memberId);
+
+        validateReadCount(member);
 
         Book book = findBook(form.getBookId());
 
@@ -42,6 +46,11 @@ public class RecordService {
         Member member = findMember(memberId);
 
         return recordRepository.findAllByMemberAndComplete(member, false);
+    }
+
+    private void validateReadCount(Member member) {
+        if(recordRepository.countAllByMemberAndComplete(member, false) >= MAX_READ_COUNT)
+            throw new IllegalStateException("최대 읽기 수를 초과했습니다");
     }
 
     private Member findMember(Long memberId) {

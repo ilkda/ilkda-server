@@ -9,4 +9,5 @@ import java.util.List;
 public interface RecordRepository extends CrudRepository<Record, Long> {
 
     List<Record> findAllByMemberAndComplete(Member member, boolean complete);
+    Long countAllByMemberAndComplete(Member member, boolean complete);
 }
