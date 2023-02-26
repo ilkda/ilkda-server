@@ -5,6 +5,7 @@ import com.ilkda.server.book.repository.BookRepository;
 import com.ilkda.server.exception.NotFoundException;
 import com.ilkda.server.member.model.Member;
 import com.ilkda.server.member.repository.MemberRepository;
+import com.ilkda.server.record.dto.RecordTextForm;
 import com.ilkda.server.record.dto.RegisterRecordForm;
 import com.ilkda.server.record.model.Record;
 import com.ilkda.server.record.repository.RecordRepository;
@@ -24,15 +25,14 @@ public class RecordService {
     private final BookRepository bookRepository;
 
     private final int MAX_READ_COUNT = 5;
+    private final int MAX_TEXT_LENGTH = 500;
 
     @Transactional
     public Long createRecord(Long memberId, RegisterRecordForm form) {
         Member member = findMember(memberId);
-
-        validateReadCount(member);
-
         Book book = findBook(form.getBookId());
 
+        validateReadCount(member);
         validateDuplication(member, book);
 
         Record record = Record.builder()
@@ -64,7 +64,16 @@ public class RecordService {
         validateUpdateReadPage(record, page);
 
         record.updateReadPage(page);
+        return recordId;
+    }
 
+    @Transactional
+    public Long updateText(Long recordId, RecordTextForm form) {
+        Record record = getRecordReading(recordId);
+
+        validateTextMaxLength(form.getText());
+
+        record.updateText(form.getText());
         return recordId;
     }
 
@@ -78,12 +87,22 @@ public class RecordService {
             throw new IllegalStateException("이미 존재하는 읽기입니다.");
     }
 
+    /** 페이지 수 업데이트는 끝나지 않은 읽기에서만 가능합니다.*/
     private void validateUpdateReadPage(Record record, Long updatePage) {
-        if(record.getComplete())
-            throw new IllegalStateException("끝난 읽기를 업데이트 할 수 없습니다.");
+        validateRecordNotFinished(record);
 
         if(updatePage < 0 || updatePage > record.getBook().getPage())
             throw new IllegalStateException("해당 페이지로 업데이트 할 수 없습니다.");
+    }
+
+    private void validateRecordNotFinished(Record record) {
+        if(record.getComplete())
+            throw new IllegalStateException("끝난 읽기를 업데이트 할 수 없습니다.");
+    }
+
+    private void validateTextMaxLength(String text) {
+        if(text.length() > MAX_TEXT_LENGTH)
+            throw new IllegalStateException("최대 감상 기록 글자 수를 초과했습니다.");
     }
 
     private Member findMember(Long memberId) {

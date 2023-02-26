@@ -1,6 +1,7 @@
 package com.ilkda.server.record.controller;
 
 import com.ilkda.server.record.dto.RecordDTO;
+import com.ilkda.server.record.dto.RecordTextForm;
 import com.ilkda.server.record.dto.RegisterRecordForm;
 import com.ilkda.server.record.model.Record;
 import com.ilkda.server.record.service.RecordService;
@@ -49,9 +50,15 @@ public class RecordController {
         );
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/page")
     public SuccessResponse<Long> updateReadPage(@PathVariable Long id,
                                                 @RequestParam Long page) {
         return new SuccessResponse<>(recordService.updateReadPage(id, page));
+    }
+
+    @PutMapping("/{id}/text")
+    public SuccessResponse<Long> updateRecordText(@PathVariable Long id,
+                                                  @RequestBody RecordTextForm form) {
+        return new SuccessResponse<>(recordService.updateText(id, form));
     }
 }

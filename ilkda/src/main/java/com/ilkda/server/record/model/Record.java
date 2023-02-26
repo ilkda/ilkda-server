@@ -28,7 +28,7 @@ public class Record extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Book book;
 
-    private String report = Strings.EMPTY;
+    private String text = Strings.EMPTY;
 
     private Long readPage = 0L;
 
@@ -43,5 +43,9 @@ public class Record extends BaseEntity {
 
     public void updateReadPage(Long page) {
         this.readPage = page;
+    }
+
+    public void updateText(String text) {
+        this.text = text;
     }
 }
