@@ -57,6 +57,18 @@ public class RecordService {
                 });
     }
 
+    @Transactional
+    public Long updateReadPage(Long recordId, Long page) {
+        Record record = getRecordReading(recordId);
+
+        if(page < 0 || page > record.getBook().getPage())
+            throw new IllegalStateException("해당 페이지로 업데이트 할 수 없습니다.");
+
+        record.updateReadPage(page);
+
+        return recordId;
+    }
+
     private void validateReadCount(Member member) {
         if(recordRepository.countAllByMemberAndComplete(member, false) >= MAX_READ_COUNT)
             throw new IllegalStateException("최대 읽기 수를 초과했습니다");

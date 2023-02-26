@@ -40,4 +40,8 @@ public class Record extends BaseEntity {
         this.member = member;
         this.book = book;
     }
+
+    public void updateReadPage(Long page) {
+        this.readPage = page;
+    }
 }

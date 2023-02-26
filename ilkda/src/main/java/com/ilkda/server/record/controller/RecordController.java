@@ -48,4 +48,10 @@ public class RecordController {
                         .build()
         );
     }
+
+    @PutMapping("/{id}")
+    public SuccessResponse<Long> updateReadPage(@PathVariable Long id,
+                                                @RequestParam Long page) {
+        return new SuccessResponse<>(recordService.updateReadPage(id, page));
+    }
 }
