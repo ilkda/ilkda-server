@@ -19,19 +19,19 @@ public class RecordController {
     private final RecordService recordService;
 
     @PostMapping("/")
-    public SuccessResponse<Long> register(@RequestBody RegisterRecordForm form,
+    public SuccessResponse<Long> createRecord(@RequestBody RegisterRecordForm form,
                                           HttpServletRequest req) {
         Long memberId = HttpUtil.getAttributeFromRequest(req, "memberId", Long.class);
         return new SuccessResponse<>(
-                recordService.saveRecord(memberId, form)
+                recordService.createRecord(memberId, form)
         );
     }
 
     @GetMapping("/")
-    public SuccessResponse<List<RecordDTO>> findAllReading(HttpServletRequest req) {
+    public SuccessResponse<List<RecordDTO>> getAllReading(HttpServletRequest req) {
         Long memberId = HttpUtil.getAttributeFromRequest(req, "memberId", Long.class);
         return new SuccessResponse<>(
-                RecordDTO.getRecordDTOList(recordService.readAllRecordReading(memberId))
+                RecordDTO.getRecordDTOList(recordService.getAllRecordReading(memberId))
         );
     }
 }

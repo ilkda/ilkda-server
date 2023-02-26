@@ -26,7 +26,7 @@ public class RecordService {
     private final int MAX_READ_COUNT = 5;
 
     @Transactional
-    public Long saveRecord(Long memberId, RegisterRecordForm form) {
+    public Long createRecord(Long memberId, RegisterRecordForm form) {
         Member member = findMember(memberId);
 
         validateReadCount(member);
@@ -42,7 +42,7 @@ public class RecordService {
         return record.getId();
     }
 
-    public List<Record> readAllRecordReading(Long memberId) {
+    public List<Record> getAllRecordReading(Long memberId) {
         Member member = findMember(memberId);
 
         return recordRepository.findAllByMemberAndComplete(member, false);

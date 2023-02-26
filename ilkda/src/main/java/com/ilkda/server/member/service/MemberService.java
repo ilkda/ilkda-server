@@ -16,7 +16,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public Long saveUser(KakaoUserInfo kakaoUserInfo) {
+    public Long createUser(KakaoUserInfo kakaoUserInfo) {
         Member member = Member.builder()
                 .kakaoId(kakaoUserInfo.getId())
                 .nickname(kakaoUserInfo.getKakaoAccount().getProfile().getNickname())
