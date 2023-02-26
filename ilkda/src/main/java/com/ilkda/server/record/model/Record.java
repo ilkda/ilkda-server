@@ -13,7 +13,9 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Table(name = "reading_records")
+@Table(name = "reading_records", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"member_id", "book_id"})
+})
 public class Record extends BaseEntity {
 
     @Id @GeneratedValue

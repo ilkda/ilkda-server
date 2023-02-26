@@ -33,6 +33,8 @@ public class RecordService {
 
         Book book = findBook(form.getBookId());
 
+        validateDuplication(member, book);
+
         Record record = Record.builder()
                 .book(book)
                 .member(member)
@@ -51,6 +53,11 @@ public class RecordService {
     private void validateReadCount(Member member) {
         if(recordRepository.countAllByMemberAndComplete(member, false) >= MAX_READ_COUNT)
             throw new IllegalStateException("최대 읽기 수를 초과했습니다");
+    }
+
+    private void validateDuplication(Member member, Book book) {
+        if(recordRepository.existsRecordByBookAndMember(book, member))
+            throw new IllegalStateException("이미 존재하는 읽기입니다.");
     }
 
     private Member findMember(Long memberId) {
