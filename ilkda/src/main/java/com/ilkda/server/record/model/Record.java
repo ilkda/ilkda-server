@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 
 import javax.persistence.*;
 
@@ -27,19 +28,16 @@ public class Record extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Book book;
 
-    private String report;
+    private String report = Strings.EMPTY;
 
-    private Long readPage;
+    private Long readPage = 0L;
 
-    private boolean complete;
+    private boolean complete = false;
 
     @Builder
     public Record(Long id, Member member, Book book) {
         this.id = id;
         this.member = member;
         this.book = book;
-        this.report = "";
-        this.readPage = 0L;
-        this.complete = false;
     }
 }

@@ -4,11 +4,10 @@ import com.ilkda.server.record.dto.RecordDTO;
 import com.ilkda.server.record.dto.RegisterRecordForm;
 import com.ilkda.server.record.service.RecordService;
 import com.ilkda.server.utils.ApiUtil.*;
-import com.ilkda.server.utils.HttpUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -20,16 +19,16 @@ public class RecordController {
 
     @PostMapping("/")
     public SuccessResponse<Long> createRecord(@RequestBody RegisterRecordForm form,
-                                          HttpServletRequest req) {
-        Long memberId = HttpUtil.getAttributeFromRequest(req, "memberId", Long.class);
+                                              Authentication authentication) {
+        Long memberId = (Long) authentication.getPrincipal();
         return new SuccessResponse<>(
                 recordService.createRecord(memberId, form)
         );
     }
 
     @GetMapping("/")
-    public SuccessResponse<List<RecordDTO>> getAllReading(HttpServletRequest req) {
-        Long memberId = HttpUtil.getAttributeFromRequest(req, "memberId", Long.class);
+    public SuccessResponse<List<RecordDTO>> getAllReading(Authentication authentication) {
+        Long memberId = (Long) authentication.getPrincipal();
         return new SuccessResponse<>(
                 RecordDTO.getRecordDTOList(recordService.getAllRecordReading(memberId))
         );
