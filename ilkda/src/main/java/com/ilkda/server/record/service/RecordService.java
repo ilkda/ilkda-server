@@ -77,6 +77,16 @@ public class RecordService {
         return recordId;
     }
 
+    @Transactional
+    public Long completeRead(Long recordId) {
+        Record record = getRecordReading(recordId);
+
+        validateRecordNotComplete(record);
+
+        record.completeRead();
+        return recordId;
+    }
+
     private void validateReadCount(Member member) {
         if(recordRepository.countAllByMemberAndComplete(member, false) >= MAX_READ_COUNT)
             throw new IllegalStateException("최대 읽기 수를 초과했습니다");
@@ -89,13 +99,13 @@ public class RecordService {
 
     /** 페이지 수 업데이트는 끝나지 않은 읽기에서만 가능합니다.*/
     private void validateUpdateReadPage(Record record, Long updatePage) {
-        validateRecordNotFinished(record);
+        validateRecordNotComplete(record);
 
         if(updatePage < 0 || updatePage > record.getBook().getPage())
             throw new IllegalStateException("해당 페이지로 업데이트 할 수 없습니다.");
     }
 
-    private void validateRecordNotFinished(Record record) {
+    private void validateRecordNotComplete(Record record) {
         if(record.getComplete())
             throw new IllegalStateException("끝난 읽기를 업데이트 할 수 없습니다.");
     }

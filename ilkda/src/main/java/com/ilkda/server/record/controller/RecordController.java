@@ -62,4 +62,10 @@ public class RecordController {
                                                   @RequestBody RecordTextForm form) {
         return new SuccessResponse<>(recordService.updateText(id, form));
     }
+
+    @PutMapping("/{id}/finish")
+    public SuccessResponse<Long> completeRead(@PathVariable Long id) {
+
+        return new SuccessResponse<>(recordService.completeRead(id));
+    }
 }

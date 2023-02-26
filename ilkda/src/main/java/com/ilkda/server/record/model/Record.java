@@ -48,4 +48,7 @@ public class Record extends BaseEntity {
     public void updateText(String text) {
         this.text = text;
     }
+    public void completeRead() {
+        this.complete = true;
+    }
 }
