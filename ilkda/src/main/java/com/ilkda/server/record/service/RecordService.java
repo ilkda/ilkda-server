@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -23,15 +25,9 @@ public class RecordService {
 
     @Transactional
     public Long saveRecord(Long memberId, RegisterRecordForm form) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> {
-                    throw new NotFoundException("존재하지 않는 회원입니다.");
-                });
+        Member member = findMember(memberId);
 
-        Book book = bookRepository.findById(form.getBookId())
-                .orElseThrow(() -> {
-                    throw new NotFoundException("존재하지 않는 책입니다.");
-                });
+        Book book = findBook(form.getBookId());
 
         Record record = Record.builder()
                 .book(book)
@@ -40,5 +36,25 @@ public class RecordService {
         recordRepository.save(record);
 
         return record.getId();
+    }
+
+    public List<Record> readAllRecordReading(Long memberId) {
+        Member member = findMember(memberId);
+
+        return recordRepository.findAllByMemberAndComplete(member, false);
+    }
+
+    private Member findMember(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> {
+                    throw new NotFoundException("존재하지 않는 회원입니다.");
+                });
+    }
+
+    private Book findBook(Long bookId) {
+        return bookRepository.findById(bookId)
+                .orElseThrow(() -> {
+                    throw new NotFoundException("존재하지 않는 책입니다.");
+                });
     }
 }

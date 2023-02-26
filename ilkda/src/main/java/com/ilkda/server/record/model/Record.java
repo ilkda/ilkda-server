@@ -26,7 +26,7 @@ public class Record extends BaseEntity {
 
     private String report;
 
-    private int readPage;
+    private Long readPage;
 
     private boolean complete;
 
@@ -36,7 +36,7 @@ public class Record extends BaseEntity {
         this.member = member;
         this.book = book;
         this.report = "";
-        this.readPage = 0;
+        this.readPage = 0L;
         this.complete = false;
     }
 }
