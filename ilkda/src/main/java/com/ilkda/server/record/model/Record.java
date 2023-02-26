@@ -13,6 +13,7 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Table(name = "reading_records")
 public class Record extends BaseEntity {
 
     @Id @GeneratedValue
