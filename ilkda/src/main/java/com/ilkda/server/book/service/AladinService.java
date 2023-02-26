@@ -106,7 +106,7 @@ public class AladinService {
     }
 
     private String generateUri(String baseUrl, Map<String, String> parameters) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(baseUrl);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(baseUrl);
         for(String name : parameters.keySet())
             builder.queryParam(name, parameters.get(name));
 
