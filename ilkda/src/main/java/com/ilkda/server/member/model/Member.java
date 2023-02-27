@@ -29,6 +29,7 @@ public class Member extends BaseEntity {
     @Builder
 
     public Member(Long id, Long kakaoId, String nickname, String profileImage, Role role) {
+        super();
         this.id = id;
         this.kakaoId = kakaoId;
         this.nickname = nickname;

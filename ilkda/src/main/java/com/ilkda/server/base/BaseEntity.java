@@ -21,4 +21,8 @@ public abstract class BaseEntity {
     @CreatedDate
     @Column(name = "mod_date")
     private LocalDateTime modDate;
+
+    public BaseEntity() {
+        this.regDate = LocalDateTime.now();
+    }
 }

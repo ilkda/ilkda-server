@@ -36,6 +36,7 @@ public class Record extends BaseEntity {
 
     @Builder
     public Record(Long id, Member member, Book book) {
+        super();
         this.id = id;
         this.member = member;
         this.book = book;

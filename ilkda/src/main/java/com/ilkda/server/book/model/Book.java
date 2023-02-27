@@ -24,6 +24,7 @@ public class Book extends BaseEntity {
 
     @Builder
     public Book(Long id, String isbn13, String title, String author, String cover, Long page) {
+        super();
         this.id = id;
         this.isbn13 = isbn13;
         this.title = title;
