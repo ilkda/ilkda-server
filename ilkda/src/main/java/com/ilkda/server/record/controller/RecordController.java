@@ -14,29 +14,28 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/records")
 public class RecordController {
 
     private final RecordService recordService;
 
-    @PostMapping("/")
+    @PostMapping("/api/v1/records")
     public SuccessResponse<Long> createRecord(@RequestBody RegisterRecordForm form,
                                               Authentication authentication) {
-        Long memberId = (Long) authentication.getPrincipal();
+        Long memberId = Long.parseLong((String) authentication.getPrincipal());
         return new SuccessResponse<>(
                 recordService.createRecord(memberId, form)
         );
     }
 
-    @GetMapping("/")
+    @GetMapping("/api/v1/records")
     public SuccessResponse<List<RecordDTO>> getAllReading(Authentication authentication) {
-        Long memberId = (Long) authentication.getPrincipal();
+        Long memberId = Long.parseLong((String) authentication.getPrincipal());
         return new SuccessResponse<>(
                 RecordDTO.getRecordDTOList(recordService.getAllRecordReading(memberId))
         );
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/api/v1/records/{id}")
     public SuccessResponse<RecordDTO> getRecordReading(@PathVariable Long id) {
         Record record = recordService.getRecordReading(id);
         return new SuccessResponse<>(
@@ -51,19 +50,19 @@ public class RecordController {
         );
     }
 
-    @PutMapping("/{id}/page")
+    @PutMapping("/api/v1/records/{id}/page")
     public SuccessResponse<Long> updateReadPage(@PathVariable Long id,
                                                 @RequestParam Long page) {
         return new SuccessResponse<>(recordService.updateReadPage(id, page));
     }
 
-    @PutMapping("/{id}/text")
+    @PutMapping("/api/v1/records/{id}/text")
     public SuccessResponse<Long> updateRecordText(@PathVariable Long id,
                                                   @RequestBody RecordTextForm form) {
         return new SuccessResponse<>(recordService.updateText(id, form));
     }
 
-    @PutMapping("/{id}/finish")
+    @PutMapping("/api/v1/records/{id}/finish")
     public SuccessResponse<Long> completeRead(@PathVariable Long id) {
 
         return new SuccessResponse<>(recordService.completeRead(id));
