@@ -27,6 +27,7 @@ public class RecordDTO {
         this.cover = cover;
         this.bookPage = bookPage;
         this.readPage = readPage;
+        this.text = text;
     }
 
     public static List<RecordDTO> getRecordDTOList(List<Record> recordList) {
