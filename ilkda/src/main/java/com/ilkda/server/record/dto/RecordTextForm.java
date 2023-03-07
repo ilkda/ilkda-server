@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class RegisterRecordForm {
+public class RecordTextForm {
 
-    private Long bookId;
+    private String text;
 }

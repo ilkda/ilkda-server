@@ -1,6 +1,5 @@
 package com.ilkda.server.security.provider;
 
-import com.ilkda.server.config.MemberTokenConfig;
 import com.ilkda.server.utils.jwt.JwtUtil;
 import com.ilkda.server.security.AuthenticationToken;
 import com.ilkda.server.security.details.CustomUserDetails;
@@ -27,8 +26,8 @@ public class JwtProvider implements AuthenticationProvider {
                 jwtUtil.getFieldFromToken(TOKEN_FIELD_MEMBER_ID, String.class));
 
         return new UsernamePasswordAuthenticationToken(
-                userDetails.getUsername(),
-                userDetails.getPassword(),
+                userDetails,
+                "",
                 userDetails.getAuthorities()
         );
     }

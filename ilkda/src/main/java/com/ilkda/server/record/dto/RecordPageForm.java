@@ -5,10 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class RegisterRecordForm {
+@AllArgsConstructor
+@Data
+public class RecordPageForm {
 
-    private Long bookId;
+    private Long page;
 }

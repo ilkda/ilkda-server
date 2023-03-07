@@ -15,6 +15,7 @@ import javax.persistence.*;
 public class Member extends BaseEntity {
 
     @Id @GeneratedValue
+    @Column(name = "member_id")
     private Long id;
 
     private Long kakaoId;
@@ -29,6 +30,7 @@ public class Member extends BaseEntity {
     @Builder
 
     public Member(Long id, Long kakaoId, String nickname, String profileImage, Role role) {
+        super();
         this.id = id;
         this.kakaoId = kakaoId;
         this.nickname = nickname;

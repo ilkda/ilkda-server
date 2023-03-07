@@ -45,6 +45,7 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
         return http.httpBasic().disable()
+                .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .requestMatchers()
@@ -52,8 +53,8 @@ public class SecurityConfig {
                 .antMatchers("/api/v1/records/**")
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/v1/books/**").hasRole("ROLE")
-                .antMatchers("/api/v1/records/**").hasRole("ROLE")
+                .antMatchers("/api/v1/books/**").hasRole("USER")
+                .antMatchers("/api/v1/records/**").hasRole("USER")
                 .and()
                 .addFilterAfter(authenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
                 .build();
