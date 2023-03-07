@@ -19,13 +19,18 @@ import javax.persistence.*;
 })
 public class Record extends BaseEntity {
 
+    private static final int MAX_TEXT_LENGTH = 500;
+
     @Id @GeneratedValue
+    @Column(name = "record_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "book_id")
     private Book book;
 
     private String text = Strings.EMPTY;
@@ -49,7 +54,30 @@ public class Record extends BaseEntity {
     public void updateText(String text) {
         this.text = text;
     }
+
     public void completeRead() {
         this.complete = true;
+    }
+
+
+    /** 페이지 수 업데이트는 끝나지 않은 읽기에서만 가능합니다.*/
+    public void validateUpdateReadPage(Long updatePage) {
+        validateRecordNotComplete();
+
+        if(updatePage < 0 || updatePage > this.getBook().getPage()) {
+            throw new IllegalStateException("해당 페이지로 업데이트 할 수 없습니다.");
+        }
+    }
+
+    public void validateRecordNotComplete() {
+        if(this.getComplete()) {
+            throw new IllegalStateException("끝난 읽기를 업데이트 할 수 없습니다.");
+        }
+    }
+
+    public void validateTextMaxLength() {
+        if(this.text.length() > MAX_TEXT_LENGTH) {
+            throw new IllegalStateException("최대 감상 기록 글자 수를 초과했습니다.");
+        }
     }
 }

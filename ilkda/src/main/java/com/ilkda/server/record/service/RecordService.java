@@ -5,11 +5,13 @@ import com.ilkda.server.book.repository.BookRepository;
 import com.ilkda.server.exception.NotFoundException;
 import com.ilkda.server.member.model.Member;
 import com.ilkda.server.member.repository.MemberRepository;
+import com.ilkda.server.record.dto.RecordPageForm;
 import com.ilkda.server.record.dto.RecordTextForm;
 import com.ilkda.server.record.dto.RegisterRecordForm;
 import com.ilkda.server.record.model.Record;
 import com.ilkda.server.record.repository.RecordRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,20 +22,24 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class RecordService {
 
+    private static final Long MAX_READ_COUNT = 5L;
+
     private final RecordRepository recordRepository;
     private final MemberRepository memberRepository;
     private final BookRepository bookRepository;
-
-    private final int MAX_READ_COUNT = 5;
-    private final int MAX_TEXT_LENGTH = 500;
 
     @Transactional
     public Long createRecord(Long memberId, RegisterRecordForm form) {
         Member member = findMember(memberId);
         Book book = findBook(form.getBookId());
 
-        validateReadCount(member);
-        validateDuplication(member, book);
+        if(moreThanMaxReadCount(member)) {
+            throw new IllegalStateException("최대 읽기 수를 초과했습니다");
+        }
+
+        if(duplicatedRecord(book, member)) {
+            throw new IllegalStateException("이미 존재하는 읽기입니다.");
+        }
 
         Record record = Record.builder()
                 .book(book)
@@ -58,10 +64,11 @@ public class RecordService {
     }
 
     @Transactional
-    public Long updateReadPage(Long recordId, Long page) {
+    public Long updateReadPage(Long recordId, RecordPageForm form) {
         Record record = getRecordReading(recordId);
+        Long page = form.getPage();
 
-        validateUpdateReadPage(record, page);
+        record.validateUpdateReadPage(page);
 
         record.updateReadPage(page);
         return recordId;
@@ -71,7 +78,7 @@ public class RecordService {
     public Long updateText(Long recordId, RecordTextForm form) {
         Record record = getRecordReading(recordId);
 
-        validateTextMaxLength(form.getText());
+        record.validateTextMaxLength();
 
         record.updateText(form.getText());
         return recordId;
@@ -81,39 +88,12 @@ public class RecordService {
     public Long completeRead(Long recordId) {
         Record record = getRecordReading(recordId);
 
-        validateRecordNotComplete(record);
+        record.validateRecordNotComplete();
 
         record.completeRead();
         return recordId;
     }
 
-    private void validateReadCount(Member member) {
-        if(recordRepository.countAllByMemberAndComplete(member, false) >= MAX_READ_COUNT)
-            throw new IllegalStateException("최대 읽기 수를 초과했습니다");
-    }
-
-    private void validateDuplication(Member member, Book book) {
-        if(recordRepository.existsRecordByBookAndMember(book, member))
-            throw new IllegalStateException("이미 존재하는 읽기입니다.");
-    }
-
-    /** 페이지 수 업데이트는 끝나지 않은 읽기에서만 가능합니다.*/
-    private void validateUpdateReadPage(Record record, Long updatePage) {
-        validateRecordNotComplete(record);
-
-        if(updatePage < 0 || updatePage > record.getBook().getPage())
-            throw new IllegalStateException("해당 페이지로 업데이트 할 수 없습니다.");
-    }
-
-    private void validateRecordNotComplete(Record record) {
-        if(record.getComplete())
-            throw new IllegalStateException("끝난 읽기를 업데이트 할 수 없습니다.");
-    }
-
-    private void validateTextMaxLength(String text) {
-        if(text.length() > MAX_TEXT_LENGTH)
-            throw new IllegalStateException("최대 감상 기록 글자 수를 초과했습니다.");
-    }
 
     private Member findMember(Long memberId) {
         return memberRepository.findById(memberId)
@@ -127,5 +107,13 @@ public class RecordService {
                 .orElseThrow(() -> {
                     throw new NotFoundException("존재하지 않는 책입니다.");
                 });
+    }
+
+    private Boolean moreThanMaxReadCount(Member member) {
+        return !recordRepository.findRecordCountLessThanMax(member.getId(), false, MAX_READ_COUNT);
+    }
+
+    private Boolean duplicatedRecord(Book book, Member member) {
+        return recordRepository.existsRecordByBookAndMember(book, member);
     }
 }

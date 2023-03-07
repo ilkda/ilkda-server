@@ -30,15 +30,19 @@ public class RecordDTO {
         this.text = text;
     }
 
+    public static RecordDTO of(Record record) {
+        return RecordDTO.builder()
+                .id(record.getId())
+                .title(record.getBook().getTitle())
+                .author(record.getBook().getAuthor())
+                .cover(record.getBook().getCover())
+                .bookPage(record.getBook().getPage())
+                .readPage(record.getReadPage())
+                .text(record.getText())
+                .build();
+    }
+
     public static List<RecordDTO> getRecordDTOList(List<Record> recordList) {
-        return recordList.stream().map(i -> new RecordDTO(
-                i.getId(),
-                i.getBook().getTitle(),
-                i.getBook().getAuthor(),
-                i.getBook().getCover(),
-                i.getBook().getPage(),
-                i.getReadPage(),
-                i.getText()
-        )).collect(Collectors.toList());
+        return recordList.stream().map(RecordDTO::of).collect(Collectors.toList());
     }
 }
