@@ -4,7 +4,6 @@ import com.ilkda.server.utils.jwt.JwtUtil;
 import com.ilkda.server.security.AuthenticationToken;
 import com.ilkda.server.security.details.CustomUserDetails;
 import com.ilkda.server.security.details.CustomUserDetailsService;
-import com.ilkda.server.utils.jwt.MemberJwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,15 +14,14 @@ import org.springframework.security.core.AuthenticationException;
 public class JwtProvider implements AuthenticationProvider {
 
     private final CustomUserDetailsService userDetailsService;
-    private static final String TOKEN_FIELD_MEMBER_ID = "member_id";
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String accessToken = String.valueOf(authentication.getPrincipal());
 
-        JwtUtil jwtUtil = new MemberJwtUtil(accessToken);
+        JwtUtil jwtUtil = new JwtUtil(accessToken);
         CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(
-                jwtUtil.getFieldFromToken(TOKEN_FIELD_MEMBER_ID, String.class));
+                String.valueOf(jwtUtil.getPayload().getMember_id()));
 
         return new UsernamePasswordAuthenticationToken(
                 userDetails,
