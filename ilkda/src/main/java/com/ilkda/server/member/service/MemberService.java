@@ -17,13 +17,17 @@ public class MemberService {
 
     @Transactional
     public Long createUser(KakaoUserInfo kakaoUserInfo) {
-        Member member = Member.builder()
-                .kakaoId(kakaoUserInfo.getId())
-                .nickname(kakaoUserInfo.getKakaoAccount().getProfile().getNickname())
-                .profileImage(kakaoUserInfo.getKakaoAccount().getProfile().getProfile_image_url())
-                .role(Role.ROLE_USER)
-                .build();
-        memberRepository.save(member);
-        return member.getId();
+        Member member = memberRepository.findByKakaoId(kakaoUserInfo.getId()).orElseGet(() -> {
+            Member newMember = Member.builder()
+                    .kakaoId(kakaoUserInfo.getId())
+                    .nickname(kakaoUserInfo.getKakaoAccount().getProfile().getNickname())
+                    .profileImage(kakaoUserInfo.getKakaoAccount().getProfile().getProfile_image_url())
+                    .role(Role.ROLE_USER)
+                    .build();
+            memberRepository.save(newMember);
+            return newMember;
+        });
+
+       return member.getId();
     }
 }
