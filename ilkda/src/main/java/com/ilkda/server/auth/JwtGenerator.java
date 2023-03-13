@@ -1,20 +1,26 @@
 package com.ilkda.server.auth;
 
+import com.ilkda.server.exception.NotFoundException;
 import com.ilkda.server.exception.UnauthorizedException;
+import com.ilkda.server.member.service.MemberService;
 import com.ilkda.server.utils.jwt.JwtUtil;
 import com.ilkda.server.utils.jwt.JwtPayload;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
 
 @Component
+@RequiredArgsConstructor
 public class JwtGenerator {
     @Value("${jwt.secret}")
     private String SECRET_KEY;
+
+    private final MemberService memberService;
 
     private static final long ACCESS_TOKEN_DURATION = 1000 * 60 * 120;
     private static final long REFRESH_TOKEN_DURATION = 1000 * 3600 * 480;
@@ -50,6 +56,10 @@ public class JwtGenerator {
     public String refreshAccessToken(JwtUtil jwtUtil) {
         if (!jwtUtil.getPayload().getType().equals(JwtPayload.JwtType.REFRESH)) {
             throw new UnauthorizedException("ACCESS 토큰을 갱신할 수 없습니다.");
+        }
+
+        if(!memberService.existsMember(jwtUtil.getPayload().getMember_id())) {
+            throw new NotFoundException("존재하지 않는 회원입니다.");
         }
 
         return generateAccessToken(jwtUtil.getPayload());

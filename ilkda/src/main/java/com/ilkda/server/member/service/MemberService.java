@@ -30,4 +30,8 @@ public class MemberService {
 
        return member.getId();
     }
+
+    public boolean existsMember(Long memberId) {
+        return memberRepository.existsById(memberId);
+    }
 }
