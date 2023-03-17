@@ -14,6 +14,10 @@ public class MemberJwtUtil extends JwtUtil {
         super(token);
     }
 
+    /**
+     * jwt의 {헤더.페이로드.서명} 형식에서 페이로드를 가져오기 위해 [.]을 기준으로 split 후 두 번째 인자를 사용합니다. <br/>
+     * jwt는 HS256 (Base64(Header) + Base64(Payload) + secret key) 알고리즘으로 인코딩 되었으므로 Base64로 페이로드를 디코딩 합니다.
+     * */
      public MemberJwtPayload parsePayload() {
         try {
             JSONParser jsonParser = new JSONParser();
