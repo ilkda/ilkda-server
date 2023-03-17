@@ -1,12 +1,14 @@
 package com.ilkda.server.auth.service;
 
-import com.ilkda.server.auth.JwtGenerator;
+import com.ilkda.server.jwt.JwtGenerator;
 import com.ilkda.server.auth.dto.KakaoUserInfo;
 import com.ilkda.server.auth.dto.TokenDTO;
+import com.ilkda.server.exception.NotFoundException;
 import com.ilkda.server.exception.UnauthorizedException;
 import com.ilkda.server.member.service.MemberService;
-import com.ilkda.server.utils.jwt.JwtUtil;
-import com.ilkda.server.utils.jwt.MemberJwtUtil;
+import com.ilkda.server.jwt.util.MemberJwtUtil;
+import com.ilkda.server.jwt.payload.JwtPayload;
+import com.ilkda.server.jwt.payload.MemberJwtPayload;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -18,39 +20,40 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
-import java.util.Map;
-
-
 @RequiredArgsConstructor
 @Service
 public class AuthService {
 
     private final MemberService memberService;
-    private static final String TOKEN_FIELD_MEMBER_ID = "member_id";
+    private final JwtGenerator jwtGenerator;
 
-    public TokenDTO registerUser(String kakaoToken) {
-        // 1. Access token으로 카카오에서 사용자 정보 가져오기
-        // 2. 사용자 정보 저장하기
-        String memberId = Long.toString(memberService.createUser(getKakaoUserInfo(kakaoToken)));
+    private final static long ACCESS_TOKEN_DURATION = 1000 * 60 * 120;
+    private final static long REFRESH_TOKEN_DURATION = 1000 * 3600 * 480;
 
-        // 3. Access token, Refresh token 발급하기
-        Map<String, Object> accessTokenClaims = new HashMap<>();
-        accessTokenClaims.put(TOKEN_FIELD_MEMBER_ID, memberId);
-        String accessToken = JwtGenerator.generateAccessToken(accessTokenClaims);
+    public TokenDTO login(String kakaoToken) {
+        Long memberId = memberService.createUser(getKakaoUserInfo(kakaoToken));
 
-        Map<String, Object> refreshTokenClaims = new HashMap<>();
-        refreshTokenClaims.put(TOKEN_FIELD_MEMBER_ID, memberId);
-        String refreshToken = JwtGenerator.generateRefreshToken(refreshTokenClaims);
+        String accessToken = jwtGenerator.generateAccessToken(
+                MemberJwtPayload.builder()
+                        .type(JwtPayload.JwtType.ACCESS)
+                        .exp(System.currentTimeMillis() + ACCESS_TOKEN_DURATION)
+                        .member_id(memberId)
+                        .build());
+        String refreshToken = jwtGenerator.generateAccessToken(
+                MemberJwtPayload.builder()
+                        .type(JwtPayload.JwtType.REFRESH)
+                        .exp(System.currentTimeMillis() + REFRESH_TOKEN_DURATION)
+                        .member_id(memberId)
+                        .build());
 
         return new TokenDTO(accessToken, refreshToken);
     }
 
     public TokenDTO refreshToken(String refreshToken) {
-        JwtUtil jwtUtil = new MemberJwtUtil(refreshToken);
+        MemberJwtUtil memberJwtUtil = new MemberJwtUtil(refreshToken);
 
-        String accessToken = JwtGenerator.refreshAccessToken(jwtUtil);
-        refreshToken = JwtGenerator.refreshRefreshToken(jwtUtil);
+        String accessToken = refreshAccessToken(memberJwtUtil);
+        refreshToken = refreshRefreshToken(memberJwtUtil);
 
         return new TokenDTO(accessToken, refreshToken);
     }
@@ -78,6 +81,38 @@ public class AuthService {
             throw new UnauthorizedException("토큰 파싱 실패");
         }
         return new KakaoUserInfo(jsonObject);
+    }
+
+    private String refreshAccessToken(MemberJwtUtil memberJwtUtil) {
+        if (!memberJwtUtil.getPayload().getType().equals(MemberJwtPayload.JwtType.REFRESH)) {
+            throw new UnauthorizedException("ACCESS 토큰을 갱신할 수 없습니다.");
+        }
+
+        Long memberId = ((MemberJwtPayload)memberJwtUtil.getPayload()).getMember_id();
+        if(!memberService.existsMember(memberId)) {
+            throw new NotFoundException("존재하지 않는 회원입니다.");
+        }
+
+        return jwtGenerator.generateAccessToken(
+                MemberJwtPayload.builder()
+                        .type(JwtPayload.JwtType.ACCESS)
+                        .exp(System.currentTimeMillis() + ACCESS_TOKEN_DURATION)
+                        .member_id(memberId)
+                        .build());
+    }
+
+    private String refreshRefreshToken(MemberJwtUtil memberJwtUtil) {
+        String refreshToken = memberJwtUtil.getToken();
+
+        if (!memberJwtUtil.checkRefreshToken(REFRESH_TOKEN_DURATION)) {
+            refreshToken = jwtGenerator.generateRefreshToken(
+                    MemberJwtPayload.builder()
+                    .type(JwtPayload.JwtType.REFRESH)
+                    .exp(System.currentTimeMillis() + REFRESH_TOKEN_DURATION)
+                    .member_id(((MemberJwtPayload)memberJwtUtil.getPayload()).getMember_id())
+                    .build());
+        }
+        return refreshToken;
     }
 }
 
