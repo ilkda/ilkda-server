@@ -11,12 +11,14 @@ import com.ilkda.server.record.dto.RegisterRecordForm;
 import com.ilkda.server.record.model.Record;
 import com.ilkda.server.record.repository.RecordRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -47,20 +49,27 @@ public class RecordService {
                 .build();
         recordRepository.save(record);
 
+        log.info("record#{} 읽기 등록 성공", record.getId());
         return record.getId();
     }
 
     public List<Record> getAllRecordReading(Long memberId) {
         Member member = findMember(memberId);
 
-        return recordRepository.findAllByMemberAndComplete(member, false);
+        List<Record> recordList = recordRepository.findAllByMemberAndComplete(member, false);
+
+        log.info("member#{} 현재 읽기 목록 조회 성공", memberId);
+        return recordList;
     }
 
     public Record getRecordReading(Long recordId) {
-        return recordRepository.findById(recordId)
+        Record record = recordRepository.findById(recordId)
                 .orElseThrow(() -> {
                     throw new NotFoundException("존재하지 않는 읽기입니다.");
                 });
+
+        log.info("record#{} 읽기 한 건 조회 성공", recordId);
+        return record;
     }
 
     @Transactional
@@ -69,8 +78,9 @@ public class RecordService {
         Long page = form.getPage();
 
         record.validateUpdateReadPage(page);
-
         record.updateReadPage(page);
+
+        log.info("record#{} 읽기 페이지 업데이트 성공", recordId);
         return recordId;
     }
 
@@ -79,8 +89,9 @@ public class RecordService {
         Record record = getRecordReading(recordId);
 
         record.validateTextMaxLength();
-
         record.updateText(form.getText());
+
+        log.info("record#{} 읽기 감상기록 업데이트 성공", recordId);
         return recordId;
     }
 
@@ -89,8 +100,9 @@ public class RecordService {
         Record record = getRecordReading(recordId);
 
         record.validateRecordNotComplete();
-
         record.completeRead();
+
+        log.info("record#{} 읽기 마침 성공", recordId);
         return recordId;
     }
 
