@@ -17,7 +17,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public SuccessResponse<TokenDTO> login(@RequestBody LoginForm form) {
-        return new SuccessResponse<>(authService.registerUser(form.getKakaoToken()));
+        return new SuccessResponse<>(authService.login(form.getKakaoToken()));
     }
 
     @PostMapping("/refresh")

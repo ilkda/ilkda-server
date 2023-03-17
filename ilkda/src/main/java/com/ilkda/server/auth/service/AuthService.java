@@ -30,7 +30,7 @@ public class AuthService {
     private final static long ACCESS_TOKEN_DURATION = 1000 * 60 * 120;
     private final static long REFRESH_TOKEN_DURATION = 1000 * 3600 * 480;
 
-    public TokenDTO registerUser(String kakaoToken) {
+    public TokenDTO login(String kakaoToken) {
         Long memberId = memberService.createUser(getKakaoUserInfo(kakaoToken));
 
         String accessToken = jwtGenerator.generateAccessToken(
