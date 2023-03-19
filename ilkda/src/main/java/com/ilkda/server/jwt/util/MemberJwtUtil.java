@@ -26,8 +26,7 @@ public class MemberJwtUtil implements JwtUtil {
         return this.token;
     }
 
-    @Override
-    public JwtPayload getPayload() {
+    public MemberJwtPayload getPayload() {
         return this.payload;
     }
 

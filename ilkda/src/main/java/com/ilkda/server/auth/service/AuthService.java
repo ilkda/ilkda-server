@@ -88,7 +88,7 @@ public class AuthService {
             throw new UnauthorizedException("ACCESS 토큰을 갱신할 수 없습니다.");
         }
 
-        Long memberId = ((MemberJwtPayload)memberJwtUtil.getPayload()).getMember_id();
+        Long memberId = memberJwtUtil.getPayload().getMember_id();
         if(!memberService.existsMember(memberId)) {
             throw new NotFoundException("존재하지 않는 회원입니다.");
         }
@@ -109,7 +109,7 @@ public class AuthService {
                     MemberJwtPayload.builder()
                     .type(JwtPayload.JwtType.REFRESH)
                     .exp(System.currentTimeMillis() + REFRESH_TOKEN_DURATION)
-                    .member_id(((MemberJwtPayload)memberJwtUtil.getPayload()).getMember_id())
+                    .member_id(memberJwtUtil.getPayload().getMember_id())
                     .build());
         }
         return refreshToken;
