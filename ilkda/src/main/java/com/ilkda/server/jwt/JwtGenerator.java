@@ -1,6 +1,7 @@
 package com.ilkda.server.jwt;
 
 import com.ilkda.server.exception.UnauthorizedException;
+import com.ilkda.server.jwt.payload.JwtPayload;
 import com.ilkda.server.jwt.payload.MemberJwtPayload;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -17,7 +18,7 @@ public class JwtGenerator {
     @Value("${jwt.secret}")
     private String SECRET_KEY;
 
-    private String doGenerate(MemberJwtPayload payload) throws IllegalAccessException {
+    private String doGenerate(JwtPayload payload) throws IllegalAccessException {
         SECRET_KEY = Base64.getEncoder().encodeToString(SECRET_KEY.getBytes());
         Claims claims = Jwts.claims(payload.getPayloads());
         return Jwts.builder()
