@@ -3,30 +3,17 @@ package com.ilkda.server.jwt.util;
 import com.ilkda.server.exception.UnauthorizedException;
 import com.ilkda.server.jwt.payload.JwtPayload;
 
-public abstract class JwtUtil {
+public interface JwtUtil {
 
-    private final String token;
-    private final JwtPayload payload;
+    String getToken();
 
-    public JwtUtil(String token) {
-        this.token = token;
-        this.payload = parsePayload();
-        validateToken();
-    }
+    JwtPayload getPayload();
 
-    public String getToken() {
-        return this.token;
-    }
-
-    public JwtPayload getPayload() {
-        return this.payload;
-    }
-
-    private void validateToken() {
-        if(payload.getExp() < System.currentTimeMillis()) {
+    default void validateExpiration(long expiration) {
+        if(expiration < System.currentTimeMillis()) {
             throw new UnauthorizedException("토큰이 유효하지 않습니다.");
         }
     }
 
-    abstract JwtPayload parsePayload();
+    JwtPayload parsePayload();
 }
