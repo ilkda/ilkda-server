@@ -11,7 +11,6 @@ import com.ilkda.server.record.dto.RegisterRecordForm;
 import com.ilkda.server.record.model.Record;
 import com.ilkda.server.record.repository.RecordRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +24,9 @@ public class RecordService {
     private static final Long MAX_READ_COUNT = 5L;
 
     private final RecordRepository recordRepository;
+
     private final MemberRepository memberRepository;
+
     private final BookRepository bookRepository;
 
     @Transactional
@@ -68,8 +69,6 @@ public class RecordService {
         Record record = getRecordReading(recordId);
         Long page = form.getPage();
 
-        record.validateUpdateReadPage(page);
-
         record.updateReadPage(page);
         return recordId;
     }
@@ -78,8 +77,6 @@ public class RecordService {
     public Long updateText(Long recordId, RecordTextForm form) {
         Record record = getRecordReading(recordId);
 
-        record.validateTextMaxLength();
-
         record.updateText(form.getText());
         return recordId;
     }
@@ -87,8 +84,6 @@ public class RecordService {
     @Transactional
     public Long completeRead(Long recordId) {
         Record record = getRecordReading(recordId);
-
-        record.validateRecordNotComplete();
 
         record.completeRead();
         return recordId;
