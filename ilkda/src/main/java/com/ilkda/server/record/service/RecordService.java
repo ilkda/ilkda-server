@@ -87,11 +87,17 @@ public class RecordService {
         return recordId;
     }
 
+    /**
+     * 페이지를 마지막 페이지까가지 업데이트 하지 않고 읽기 마침을 한 경우, 페이지를 마지막 페이지로 업데이트 한 후 읽기를 종료해야 합니다.*/
     @Transactional
     public Long completeRead(Long recordId) {
         Record record = getRecordReading(recordId);
 
+        if(!record.readLastPage()) {
+            updateReadPage(record.getId(), record.getBook().getPage());
+        }
         record.completeRead();
+
         return recordId;
     }
 

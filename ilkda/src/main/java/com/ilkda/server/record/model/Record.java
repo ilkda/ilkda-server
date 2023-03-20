@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -61,6 +62,10 @@ public class Record extends BaseEntity {
         validateRecordNotComplete();
 
         this.complete = true;
+    }
+
+    public boolean readLastPage() {
+        return Objects.equals(this.readPage, this.book.getPage());
     }
 
 
