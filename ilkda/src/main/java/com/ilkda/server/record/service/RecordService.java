@@ -111,6 +111,7 @@ public class RecordService {
 
             DailyRecord dailyRecord = DailyRecord.builder()
                     .readPageCount(readPageCount)
+                    .member(record.getMember())
                     .build();
             dailyRecordRepository.save(dailyRecord);
 
