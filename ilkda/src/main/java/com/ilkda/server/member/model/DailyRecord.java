@@ -1,6 +1,7 @@
-package com.ilkda.server.record.model;
+package com.ilkda.server.member.model;
 
 import com.ilkda.server.base.BaseEntity;
+import com.ilkda.server.record.model.Record;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,14 +19,14 @@ public class DailyRecord extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Record record;
+    private Member member;
 
     private Long readPageCount;
 
     @Builder
-    public DailyRecord(Long id, Record record, Long readPageCount) {
+    public DailyRecord(Long id, Member member, Long readPageCount) {
         this.id = id;
-        this.record = record;
+        this.member = member;
         this.readPageCount = readPageCount;
     }
 }
