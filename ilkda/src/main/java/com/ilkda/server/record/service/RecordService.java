@@ -5,10 +5,11 @@ import com.ilkda.server.book.repository.BookRepository;
 import com.ilkda.server.exception.NotFoundException;
 import com.ilkda.server.member.model.Member;
 import com.ilkda.server.member.repository.MemberRepository;
-import com.ilkda.server.record.dto.RecordPageForm;
 import com.ilkda.server.record.dto.RecordTextForm;
 import com.ilkda.server.record.dto.RegisterRecordForm;
+import com.ilkda.server.record.model.DailyRecord;
 import com.ilkda.server.record.model.Record;
+import com.ilkda.server.record.repository.DailyRecordRepository;
 import com.ilkda.server.record.repository.RecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,8 @@ public class RecordService {
     private static final Long MAX_READ_COUNT = 5L;
 
     private final RecordRepository recordRepository;
+
+    private final DailyRecordRepository dailyRecordRepository;
 
     private final MemberRepository memberRepository;
 
@@ -64,12 +67,15 @@ public class RecordService {
                 });
     }
 
+    /**
+     * 이전 페이지보다 뒷 페이지로 넘어갔으면 DailyRecord를 추가합니다.*/
     @Transactional
-    public Long updateReadPage(Long recordId, RecordPageForm form) {
+    public Long updateReadPage(Long recordId, Long newPage) {
         Record record = getRecordReading(recordId);
-        Long page = form.getPage();
 
-        record.updateReadPage(page);
+        record.updateReadPage(newPage);
+        updateReadPageCount(record, newPage);
+
         return recordId;
     }
 
@@ -89,6 +95,24 @@ public class RecordService {
         return recordId;
     }
 
+
+    @Transactional
+    protected void updateReadPageCount(Record record, Long newPage) {
+        Long oldPage = record.getReadPage();
+
+        if(oldPage < newPage) {
+            Long readPageCount = newPage - oldPage;
+
+            DailyRecord dailyRecord = DailyRecord.builder()
+                    .readPageCount(readPageCount)
+                    .build();
+            dailyRecordRepository.save(dailyRecord);
+
+            Member member = findMember(record.getMember().getId());
+            member.updateMinPageCount(readPageCount);
+            member.updateMaxPageCount(readPageCount);
+        }
+    }
 
     private Member findMember(Long memberId) {
         return memberRepository.findById(memberId)

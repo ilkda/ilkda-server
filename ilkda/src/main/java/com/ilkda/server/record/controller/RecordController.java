@@ -47,7 +47,7 @@ public class RecordController {
     @PutMapping("/{id}/page")
     public SuccessResponse<Long> updateReadPage(@PathVariable Long id,
                                                 @RequestBody RecordPageForm form) {
-        return new SuccessResponse<>(recordService.updateReadPage(id, form));
+        return new SuccessResponse<>(recordService.updateReadPage(id, form.getPage()));
     }
 
     @PutMapping("/{id}/text")

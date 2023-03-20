@@ -27,8 +27,11 @@ public class Member extends BaseEntity {
     @Enumerated(value = EnumType.STRING)
     private Role role = Role.ROLE_GUEST;
 
-    @Builder
+    private Long minReadCount = 0L;
 
+    private Long maxReadCount = 0L;
+
+    @Builder
     public Member(Long id, Long kakaoId, String nickname, String profileImage, Role role) {
         super();
         this.id = id;
@@ -36,5 +39,15 @@ public class Member extends BaseEntity {
         this.nickname = nickname;
         this.profileImage = profileImage;
         this.role = role;
+    }
+
+    public void updateMinPageCount(Long readPageCount) {
+        if(this.minReadCount == 0) this.minReadCount = readPageCount;
+        else this.minReadCount = Math.min(this.minReadCount, readPageCount);
+    }
+
+    public void updateMaxPageCount(Long readPageCount) {
+        if(this.maxReadCount == 0) this.maxReadCount = readPageCount;
+        this.maxReadCount = Math.max(this.maxReadCount, readPageCount);
     }
 }
