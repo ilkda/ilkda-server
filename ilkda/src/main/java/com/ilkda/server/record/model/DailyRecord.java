@@ -1,6 +1,7 @@
-package com.ilkda.server.member.model;
+package com.ilkda.server.record.model;
 
 import com.ilkda.server.base.BaseEntity;
+import com.ilkda.server.member.model.Member;
 import com.ilkda.server.record.model.Record;
 import lombok.AccessLevel;
 import lombok.Builder;
