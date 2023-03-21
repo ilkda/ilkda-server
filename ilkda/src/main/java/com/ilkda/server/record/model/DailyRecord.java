@@ -30,4 +30,8 @@ public class DailyRecord extends BaseEntity {
         this.member = member;
         this.readPageCount = readPageCount;
     }
+
+    public void plusReadPageCount(Long readPageCount) {
+        this.readPageCount += readPageCount;
+    }
 }

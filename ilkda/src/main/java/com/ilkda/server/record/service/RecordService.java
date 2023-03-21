@@ -15,7 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -82,8 +84,8 @@ public class RecordService {
     public Long updateReadPage(Long recordId, Long newPage) {
         Record record = getRecordReading(recordId);
 
+        updateDailyRecord(record, newPage);
         record.updateReadPage(newPage);
-        updateReadPageCount(record, newPage);
 
         return recordId;
     }
@@ -110,18 +112,28 @@ public class RecordService {
         return recordId;
     }
 
-
+    /**
+     * 읽기 페이지가 이전에 비해 증가한 경우 DailyRecord를 추가합니다.<br>
+     * 이미 오늘 DailyRecord가 존재하는 경우, 새 데이터를 추가하는 대신 readPageCount 필드만 업데이트 해야 합니다.
+     */
     @Transactional
-    protected void updateReadPageCount(Record record, Long newPage) {
+    protected void updateDailyRecord(Record record, Long newPage) {
         Long oldPage = record.getReadPage();
 
-        if(oldPage < newPage) {
-            Long readPageCount = newPage - oldPage;
+        if (oldPage < newPage) {
+            LocalDateTime fromDate = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+            LocalDateTime toDate = fromDate.plusDays(1);
+            DailyRecord dailyRecord = dailyRecordRepository.findByRegDateBetween(fromDate, toDate)
+                    .orElse(
+                            DailyRecord.builder()
+                                    .readPageCount(0L)
+                                    .member(record.getMember())
+                                    .build()
+                    );
 
-            DailyRecord dailyRecord = DailyRecord.builder()
-                    .readPageCount(readPageCount)
-                    .member(record.getMember())
-                    .build();
+            Long readPageCount = newPage - oldPage;
+            dailyRecord.plusReadPageCount(readPageCount);
+
             dailyRecordRepository.save(dailyRecord);
         }
     }
