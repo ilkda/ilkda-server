@@ -1,9 +1,6 @@
 package com.ilkda.server.record.controller;
 
-import com.ilkda.server.record.dto.RecordDTO;
-import com.ilkda.server.record.dto.RecordPageForm;
-import com.ilkda.server.record.dto.RecordTextForm;
-import com.ilkda.server.record.dto.RegisterRecordForm;
+import com.ilkda.server.record.dto.*;
 import com.ilkda.server.record.model.Record;
 import com.ilkda.server.record.service.RecordService;
 import com.ilkda.server.security.details.CustomUserDetails;
@@ -42,6 +39,14 @@ public class RecordController {
     public SuccessResponse<RecordDTO> getRecordReading(@PathVariable Long id) {
         Record record = recordService.getRecordReading(id);
         return new SuccessResponse<>(RecordDTO.of(record));
+    }
+
+    @GetMapping("/monthly")
+    public SuccessResponse<List<DailyRecordDTO>> getMonthRecord(@RequestParam int year,
+                                                                @RequestParam int month,
+                                                                @AuthenticationPrincipal CustomUserDetails user) {
+        Long memberId = user.getMemberId();
+        return new SuccessResponse<>(DailyRecordDTO.of(recordService.getMonthRecord(memberId, year, month)));
     }
 
     @PutMapping("/{id}/page")
