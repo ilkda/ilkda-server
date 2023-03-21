@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -65,6 +66,14 @@ public class RecordService {
                 .orElseThrow(() -> {
                     throw new NotFoundException("존재하지 않는 읽기입니다.");
                 });
+    }
+
+    public List<DailyRecord> getMonthRecord(Long memberId, int year, int month) {
+        Member member = findMember(memberId);
+
+        LocalDateTime fromDate = LocalDateTime.of(year, month, 1, 0, 0);
+        LocalDateTime toDate = fromDate.plusMonths(1);
+        return dailyRecordRepository.findByMemberAndRegDateBetween(member, fromDate, toDate);
     }
 
     /**
