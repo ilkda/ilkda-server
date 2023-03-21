@@ -123,10 +123,6 @@ public class RecordService {
                     .member(record.getMember())
                     .build();
             dailyRecordRepository.save(dailyRecord);
-
-            Member member = findMember(record.getMember().getId());
-            member.updateMinPageCount(readPageCount);
-            member.updateMaxPageCount(readPageCount);
         }
     }
 
