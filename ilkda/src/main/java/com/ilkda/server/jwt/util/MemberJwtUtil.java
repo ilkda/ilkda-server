@@ -1,6 +1,7 @@
 package com.ilkda.server.jwt.util;
 
 import com.ilkda.server.exception.UnauthorizedException;
+import com.ilkda.server.jwt.payload.JwtPayload;
 import com.ilkda.server.jwt.payload.MemberJwtPayload;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -8,10 +9,25 @@ import org.json.simple.parser.ParseException;
 
 import java.util.*;
 
-public class MemberJwtUtil extends JwtUtil {
+public class MemberJwtUtil implements JwtUtil {
+
+    private String token;
+    private MemberJwtPayload payload;
 
     public MemberJwtUtil(String token) {
-        super(token);
+        this.token = token;
+        this.payload = parsePayload();
+
+        validateExpiration(payload.getExp());
+    }
+
+    @Override
+    public String getToken() {
+        return this.token;
+    }
+
+    public MemberJwtPayload getPayload() {
+        return this.payload;
     }
 
     /**
