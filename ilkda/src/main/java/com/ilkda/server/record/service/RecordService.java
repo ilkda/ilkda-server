@@ -160,6 +160,8 @@ public class RecordService {
         }
     }
 
+    /**
+     * 연간 읽기 조회는 요청한 연도의 1월 1일 부터 12월 31일 까지의 기록에서 검색합니다.*/
     private DailyRecord getYearReadPageCount(Long memberId, int year, Sort.Direction direction) {
         Member member = findMember(memberId);
         LocalDateTime fromDate = LocalDateTime.of(year, 1, 1, 0, 0);
