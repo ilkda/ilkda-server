@@ -17,4 +17,5 @@ public interface DailyRecordRepository extends CrudRepository<DailyRecord, Long>
 
     DailyRecord findTopReadPageCountByMemberAndRegDateBetween(Member member, LocalDateTime fromDate, LocalDateTime toDate, Sort sort);
 
+    Long countByMemberAndRegDateBetween(Member member, LocalDateTime fromDate, LocalDateTime toDate);
 }

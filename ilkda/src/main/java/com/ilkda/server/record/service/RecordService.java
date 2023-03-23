@@ -130,6 +130,12 @@ public class RecordService {
                 .findTopReadPageCountByMemberAndRegDateBetween(member, fromDate, toDate, sort);
     }
 
+    public Long getMonthReadDateCount(Long memberId, int year, int month) {
+        Member member = findMember(memberId);
+        LocalDateTime fromDate = LocalDateTime.of(year, month, 1, 0, 0);
+        LocalDateTime toDate = fromDate.plusMonths(1);
+        return dailyRecordRepository.countByMemberAndRegDateBetween(member, fromDate, toDate);
+    }
 
     /**
      * 읽기 페이지가 이전에 비해 증가한 경우 DailyRecord를 추가합니다.<br>
