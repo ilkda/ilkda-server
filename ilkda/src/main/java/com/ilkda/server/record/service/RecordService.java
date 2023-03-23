@@ -12,6 +12,7 @@ import com.ilkda.server.record.model.Record;
 import com.ilkda.server.record.repository.DailyRecordRepository;
 import com.ilkda.server.record.repository.RecordRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -111,6 +112,24 @@ public class RecordService {
 
         return recordId;
     }
+
+    public Long getYearMaxReadPageCount(Long memberId, int year) {
+        return getYearReadPageCount(memberId, year, Sort.Direction.DESC).getReadPageCount();
+    }
+
+    public Long getYearMinReadPageCount(Long memberId, int year) {
+        return getYearReadPageCount(memberId, year, Sort.Direction.ASC).getReadPageCount();
+    }
+
+    private DailyRecord getYearReadPageCount(Long memberId, int year, Sort.Direction direction) {
+        Member member = findMember(memberId);
+        LocalDateTime fromDate = LocalDateTime.of(year, 1, 1, 0, 0);
+        LocalDateTime toDate = fromDate.plusYears(1);
+        Sort sort = Sort.by(direction, "readPageCount");
+        return dailyRecordRepository
+                .findTopReadPageCountByMemberAndRegDateBetween(member, fromDate, toDate, sort);
+    }
+
 
     /**
      * 읽기 페이지가 이전에 비해 증가한 경우 DailyRecord를 추가합니다.<br>
