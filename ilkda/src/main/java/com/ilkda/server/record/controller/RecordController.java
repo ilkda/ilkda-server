@@ -41,12 +41,24 @@ public class RecordController {
         return new SuccessResponse<>(RecordDTO.of(record));
     }
 
-    @GetMapping("/monthly")
+    @GetMapping("/daily/monthly")
     public SuccessResponse<List<DailyRecordDTO>> getMonthRecord(@RequestParam int year,
                                                                 @RequestParam int month,
                                                                 @AuthenticationPrincipal CustomUserDetails user) {
         Long memberId = user.getMemberId();
         return new SuccessResponse<>(DailyRecordDTO.of(recordService.getMonthRecord(memberId, year, month)));
+    }
+
+    @GetMapping("/daily/info")
+    public SuccessResponse<DailyRecordInfoDTO> getDailyRecordInfo(@RequestParam int year,
+                                                                  @RequestParam int month,
+                                                                  @AuthenticationPrincipal CustomUserDetails user) {
+        Long memberId = user.getMemberId();
+        return new SuccessResponse<>(DailyRecordInfoDTO.builder()
+                .yearMaxReadPageCount(recordService.getYearMaxReadPageCount(memberId, year))
+                .yearMinReadPageCount(recordService.getYearMinReadPageCount(memberId, year))
+                .monthReadDateCount(recordService.getMonthReadDateCount(memberId, year, month))
+                .build());
     }
 
     @PutMapping("/{id}/page")
