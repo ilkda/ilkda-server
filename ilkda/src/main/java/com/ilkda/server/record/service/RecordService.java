@@ -116,11 +116,15 @@ public class RecordService {
     }
 
     public Long getYearMaxReadPageCount(Long memberId, int year) {
-        return getYearReadPageCount(memberId, year, Sort.Direction.DESC).getReadPageCount();
+        DailyRecord yearMaxRecord = getYearReadPageCount(memberId, year, Sort.Direction.DESC);
+
+        return yearMaxRecord != null ? yearMaxRecord.getReadPageCount() : 0L;
     }
 
     public Long getYearMinReadPageCount(Long memberId, int year) {
-        return getYearReadPageCount(memberId, year, Sort.Direction.ASC).getReadPageCount();
+        DailyRecord yearMinRecord = getYearReadPageCount(memberId, year, Sort.Direction.ASC);
+
+        return yearMinRecord != null ? yearMinRecord.getReadPageCount() : 0L;
     }
 
     public Long getMonthReadDateCount(Long memberId, int year, int month) {
