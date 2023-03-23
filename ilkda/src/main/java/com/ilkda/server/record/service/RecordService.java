@@ -59,9 +59,11 @@ public class RecordService {
     }
 
     public List<Record> getAllRecordReading(Long memberId) {
-        Member member = findMember(memberId);
+        return getAllRecordByComplete(memberId, false);
+    }
 
-        return recordRepository.findAllByMemberAndComplete(member, false);
+    public List<Record> getAllRecordHistory(Long memberId) {
+        return getAllRecordByComplete(memberId, true);
     }
 
     public Record getRecordReading(Long recordId) {
@@ -121,15 +123,6 @@ public class RecordService {
         return getYearReadPageCount(memberId, year, Sort.Direction.ASC).getReadPageCount();
     }
 
-    private DailyRecord getYearReadPageCount(Long memberId, int year, Sort.Direction direction) {
-        Member member = findMember(memberId);
-        LocalDateTime fromDate = LocalDateTime.of(year, 1, 1, 0, 0);
-        LocalDateTime toDate = fromDate.plusYears(1);
-        Sort sort = Sort.by(direction, "readPageCount");
-        return dailyRecordRepository
-                .findTopReadPageCountByMemberAndRegDateBetween(member, fromDate, toDate, sort);
-    }
-
     public Long getMonthReadDateCount(Long memberId, int year, int month) {
         Member member = findMember(memberId);
         LocalDateTime fromDate = LocalDateTime.of(year, month, 1, 0, 0);
@@ -161,6 +154,21 @@ public class RecordService {
 
             dailyRecordRepository.save(dailyRecord);
         }
+    }
+
+    private DailyRecord getYearReadPageCount(Long memberId, int year, Sort.Direction direction) {
+        Member member = findMember(memberId);
+        LocalDateTime fromDate = LocalDateTime.of(year, 1, 1, 0, 0);
+        LocalDateTime toDate = fromDate.plusYears(1);
+        Sort sort = Sort.by(direction, "readPageCount");
+        return dailyRecordRepository
+                .findTopReadPageCountByMemberAndRegDateBetween(member, fromDate, toDate, sort);
+    }
+
+    private List<Record> getAllRecordByComplete(Long memberId, boolean complete) {
+        Member member = findMember(memberId);
+
+        return recordRepository.findAllByMemberAndComplete(member, complete);
     }
 
     private Member findMember(Long memberId) {

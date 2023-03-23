@@ -35,6 +35,14 @@ public class RecordController {
         );
     }
 
+    @GetMapping("/history")
+    public SuccessResponse<List<RecordDTO>> getAllReadingHistory(@AuthenticationPrincipal CustomUserDetails user) {
+        Long memberId = user.getMemberId();
+        return new SuccessResponse<>(
+                RecordDTO.getRecordDTOList(recordService.getAllRecordHistory(memberId))
+        );
+    }
+
     @GetMapping("/{id}")
     public SuccessResponse<RecordDTO> getRecordReading(@PathVariable Long id) {
         Record record = recordService.getRecordReading(id);
