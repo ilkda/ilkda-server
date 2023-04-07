@@ -45,7 +45,7 @@ public class RecordController {
 
     @GetMapping("/{id}")
     public SuccessResponse<RecordDTO> getRecordReading(@PathVariable Long id) {
-        Record record = recordService.getRecordReading(id);
+        Record record = recordService.getRecordById(id);
         return new SuccessResponse<>(RecordDTO.of(record));
     }
 

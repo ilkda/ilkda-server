@@ -66,7 +66,7 @@ public class RecordService {
         return getAllRecordByComplete(memberId, true);
     }
 
-    public Record getRecordReading(Long recordId) {
+    public Record getRecordById(Long recordId) {
         return recordRepository.findById(recordId)
                 .orElseThrow(() -> {
                     throw new NotFoundException("존재하지 않는 읽기입니다.");
@@ -85,7 +85,7 @@ public class RecordService {
      * 이전 페이지보다 뒷 페이지로 넘어갔으면 DailyRecord를 추가합니다.*/
     @Transactional
     public Long updateReadPage(Long recordId, Long newPage) {
-        Record record = getRecordReading(recordId);
+        Record record = getRecordById(recordId);
 
         updateDailyRecord(record, newPage);
         record.updateReadPage(newPage);
@@ -95,7 +95,7 @@ public class RecordService {
 
     @Transactional
     public Long updateText(Long recordId, RecordTextForm form) {
-        Record record = getRecordReading(recordId);
+        Record record = getRecordById(recordId);
 
         record.updateText(form.getText());
         return recordId;
@@ -105,7 +105,7 @@ public class RecordService {
      * 페이지를 마지막 페이지까가지 업데이트 하지 않고 읽기 마침을 한 경우, 페이지를 마지막 페이지로 업데이트 한 후 읽기를 종료해야 합니다.*/
     @Transactional
     public Long completeRead(Long recordId) {
-        Record record = getRecordReading(recordId);
+        Record record = getRecordById(recordId);
 
         if(!record.readLastPage()) {
             updateReadPage(record.getId(), record.getBook().getPage());
