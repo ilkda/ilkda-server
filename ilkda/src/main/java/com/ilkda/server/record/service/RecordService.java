@@ -20,32 +20,30 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class RecordService {
 
-    private static final Long MAX_READ_COUNT = 5L;
+    private final RecordFinder recordFinder;
 
     private final RecordRepository recordRepository;
 
     private final DailyRecordRepository dailyRecordRepository;
 
-    private final MemberRepository memberRepository;
-
-    private final BookRepository bookRepository;
 
     @Transactional
     public Long createRecord(Long memberId, RegisterRecordForm form) {
-        Member member = findMember(memberId);
-        Book book = findBook(form.getBookId());
+        Member member = recordFinder.getMember(memberId);
+        Book book = recordFinder.getBook(form.getBookId());
 
-        if(moreThanMaxReadCount(member)) {
+        if (moreThanMaxReadCount(member)) {
             throw new IllegalStateException("최대 읽기 수를 초과했습니다");
         }
 
-        if(duplicatedRecord(book, member)) {
+        if (duplicatedRecord(book, member)) {
             throw new IllegalStateException("이미 존재하는 읽기입니다.");
         }
 
@@ -58,34 +56,13 @@ public class RecordService {
         return record.getId();
     }
 
-    public List<Record> getAllRecordReading(Long memberId) {
-        return getAllRecordByComplete(memberId, false);
-    }
-
-    public List<Record> getAllRecordHistory(Long memberId) {
-        return getAllRecordByComplete(memberId, true);
-    }
-
-    public Record getRecordById(Long recordId) {
-        return recordRepository.findById(recordId)
-                .orElseThrow(() -> {
-                    throw new NotFoundException("존재하지 않는 읽기입니다.");
-                });
-    }
-
-    public List<DailyRecord> getMonthRecord(Long memberId, int year, int month) {
-        Member member = findMember(memberId);
-
-        LocalDateTime fromDate = LocalDateTime.of(year, month, 1, 0, 0);
-        LocalDateTime toDate = fromDate.plusMonths(1);
-        return dailyRecordRepository.findByMemberAndRegDateBetween(member, fromDate, toDate);
-    }
 
     /**
-     * 이전 페이지보다 뒷 페이지로 넘어갔으면 DailyRecord를 추가합니다.*/
+     * 이전 페이지보다 뒷 페이지로 넘어갔으면 DailyRecord를 추가합니다.
+     */
     @Transactional
     public Long updateReadPage(Long recordId, Long newPage) {
-        Record record = getRecordById(recordId);
+        Record record = recordFinder.getRecordById(recordId);
 
         updateDailyRecord(record, newPage);
         record.updateReadPage(newPage);
@@ -95,19 +72,20 @@ public class RecordService {
 
     @Transactional
     public Long updateText(Long recordId, RecordTextForm form) {
-        Record record = getRecordById(recordId);
+        Record record = recordFinder.getRecordById(recordId);
 
         record.updateText(form.getText());
         return recordId;
     }
 
     /**
-     * 페이지를 마지막 페이지까가지 업데이트 하지 않고 읽기 마침을 한 경우, 페이지를 마지막 페이지로 업데이트 한 후 읽기를 종료해야 합니다.*/
+     * 페이지를 마지막 페이지까가지 업데이트 하지 않고 읽기 마침을 한 경우, 페이지를 마지막 페이지로 업데이트 한 후 읽기를 종료해야 합니다.
+     */
     @Transactional
     public Long completeRead(Long recordId) {
-        Record record = getRecordById(recordId);
+        Record record = recordFinder.getRecordById(recordId);
 
-        if(!record.readLastPage()) {
+        if (!record.readLastPage()) {
             updateReadPage(record.getId(), record.getBook().getPage());
         }
         record.completeRead();
@@ -115,23 +93,32 @@ public class RecordService {
         return recordId;
     }
 
-    public Long getYearMaxReadPageCount(Long memberId, int year) {
-        DailyRecord yearMaxRecord = getYearReadPageCount(memberId, year, Sort.Direction.DESC);
-
-        return yearMaxRecord != null ? yearMaxRecord.getReadPageCount() : 0L;
+    public Record getRecordById(Long memberId) {
+        return recordFinder.getRecordById(memberId);
     }
 
-    public Long getYearMinReadPageCount(Long memberId, int year) {
-        DailyRecord yearMinRecord = getYearReadPageCount(memberId, year, Sort.Direction.ASC);
+    public List<Record> getAllRecordReading(Long memberId) {
+        return recordFinder.getAllRecordByComplete(memberId, false);
+    }
 
-        return yearMinRecord != null ? yearMinRecord.getReadPageCount() : 0L;
+    public List<Record> getAllRecordHistory(Long memberId) {
+        return recordFinder.getAllRecordByComplete(memberId, true);
+    }
+
+    public List<DailyRecord> getMonthRecord(Long memberId, int year, int month) {
+        return recordFinder.getMonthRecord(memberId, year, month);
     }
 
     public Long getMonthReadDateCount(Long memberId, int year, int month) {
-        Member member = findMember(memberId);
-        LocalDateTime fromDate = LocalDateTime.of(year, month, 1, 0, 0);
-        LocalDateTime toDate = fromDate.plusMonths(1);
-        return dailyRecordRepository.countByMemberAndRegDateBetween(member, fromDate, toDate);
+        return recordFinder.getMonthReadDateCount(memberId, year, month);
+    }
+
+    public Long getYearMaxReadPageCount(Long memberId, int year) {
+        return recordFinder.getYearMaxReadPageCount(memberId, year);
+    }
+
+    public Long getYearMinReadPageCount(Long memberId, int year) {
+        return recordFinder.getYearMinReadPageCount(memberId, year);
     }
 
     /**
@@ -145,13 +132,11 @@ public class RecordService {
         if (oldPage < newPage) {
             LocalDateTime fromDate = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
             LocalDateTime toDate = fromDate.plusDays(1);
-            DailyRecord dailyRecord = dailyRecordRepository.findByRegDateBetween(fromDate, toDate)
-                    .orElse(
-                            DailyRecord.builder()
-                                    .readPageCount(0L)
-                                    .member(record.getMember())
-                                    .build()
-                    );
+            DailyRecord dailyRecord = recordFinder.getDailyRecordByRegDateBetween(fromDate, toDate)
+                    .orElse(DailyRecord.builder()
+                            .readPageCount(0L)
+                            .member(record.getMember())
+                            .build());
 
             Long readPageCount = newPage - oldPage;
             dailyRecord.plusReadPageCount(readPageCount);
@@ -160,42 +145,12 @@ public class RecordService {
         }
     }
 
-    /**
-     * 연간 읽기 조회는 요청한 연도의 1월 1일 부터 12월 31일 까지의 기록에서 검색합니다.*/
-    private DailyRecord getYearReadPageCount(Long memberId, int year, Sort.Direction direction) {
-        Member member = findMember(memberId);
-        LocalDateTime fromDate = LocalDateTime.of(year, 1, 1, 0, 0);
-        LocalDateTime toDate = fromDate.plusYears(1);
-        Sort sort = Sort.by(direction, "readPageCount");
-        return dailyRecordRepository
-                .findTopReadPageCountByMemberAndRegDateBetween(member, fromDate, toDate, sort);
-    }
-
-    private List<Record> getAllRecordByComplete(Long memberId, boolean complete) {
-        Member member = findMember(memberId);
-
-        return recordRepository.findAllByMemberAndComplete(member, complete);
-    }
-
-    private Member findMember(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> {
-                    throw new NotFoundException("존재하지 않는 회원입니다.");
-                });
-    }
-
-    private Book findBook(Long bookId) {
-        return bookRepository.findById(bookId)
-                .orElseThrow(() -> {
-                    throw new NotFoundException("존재하지 않는 책입니다.");
-                });
-    }
-
     private Boolean moreThanMaxReadCount(Member member) {
-        return !recordRepository.findRecordCountLessThanMax(member.getId(), false, MAX_READ_COUNT);
+        return recordFinder.checkRecordCountLessThanMax(member);
     }
 
     private Boolean duplicatedRecord(Book book, Member member) {
-        return recordRepository.existsRecordByBookAndMember(book, member);
+        return recordFinder.checkExistsRecordByBookAndMember(book, member);
     }
+
 }
