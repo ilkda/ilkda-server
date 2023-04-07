@@ -10,6 +10,7 @@ import com.ilkda.server.jwt.util.MemberJwtUtil;
 import com.ilkda.server.jwt.payload.JwtPayload;
 import com.ilkda.server.jwt.payload.MemberJwtPayload;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AuthService {
@@ -46,6 +48,7 @@ public class AuthService {
                         .member_id(memberId)
                         .build());
 
+        log.info("member#{} 토큰 발급 성공", memberId);
         return new TokenDTO(accessToken, refreshToken);
     }
 
@@ -55,6 +58,7 @@ public class AuthService {
         String accessToken = refreshAccessToken(memberJwtUtil);
         refreshToken = refreshRefreshToken(memberJwtUtil);
 
+        log.info("member#{} 토큰 갱신 성공", ((MemberJwtPayload)memberJwtUtil.getPayload()).getMember_id());
         return new TokenDTO(accessToken, refreshToken);
     }
 
@@ -88,8 +92,9 @@ public class AuthService {
             throw new UnauthorizedException("ACCESS 토큰을 갱신할 수 없습니다.");
         }
 
-        Long memberId = ((MemberJwtPayload)memberJwtUtil.getPayload()).getMember_id();
+        Long memberId = memberJwtUtil.getPayload().getMember_id();
         if(!memberService.existsMember(memberId)) {
+            log.debug("{} 멤버 존재 x", memberId);
             throw new NotFoundException("존재하지 않는 회원입니다.");
         }
 
@@ -109,7 +114,7 @@ public class AuthService {
                     MemberJwtPayload.builder()
                     .type(JwtPayload.JwtType.REFRESH)
                     .exp(System.currentTimeMillis() + REFRESH_TOKEN_DURATION)
-                    .member_id(((MemberJwtPayload)memberJwtUtil.getPayload()).getMember_id())
+                    .member_id(memberJwtUtil.getPayload().getMember_id())
                     .build());
         }
         return refreshToken;

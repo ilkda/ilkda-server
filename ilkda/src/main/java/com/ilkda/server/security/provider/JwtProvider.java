@@ -4,7 +4,6 @@ import com.ilkda.server.jwt.util.MemberJwtUtil;
 import com.ilkda.server.security.AuthenticationToken;
 import com.ilkda.server.security.details.CustomUserDetails;
 import com.ilkda.server.security.details.CustomUserDetailsService;
-import com.ilkda.server.jwt.payload.MemberJwtPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,7 +21,7 @@ public class JwtProvider implements AuthenticationProvider {
 
         MemberJwtUtil memberJwtUtil = new MemberJwtUtil(accessToken);
         CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(
-                String.valueOf(((MemberJwtPayload)memberJwtUtil.getPayload()).getMember_id()));
+                String.valueOf(memberJwtUtil.getPayload().getMember_id()));
 
         return new UsernamePasswordAuthenticationToken(
                 userDetails,

@@ -3,6 +3,7 @@ package com.ilkda.server.book.service;
 import com.ilkda.server.book.model.Book;
 import com.ilkda.server.book.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -38,6 +40,8 @@ public class AladinService {
             JSONArray jsonArray = getSearchBookList();
             List<Book> bookList = getBooksDetail(jsonArray);
             bookRepository.saveAll(bookList);
+
+            log.info("알라딘 책 데이터 저장 성공");
         } catch (ParseException p) {
             throw new RuntimeException("알라딘 데이터 파싱 실패");
         }

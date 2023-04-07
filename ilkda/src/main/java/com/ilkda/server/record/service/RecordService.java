@@ -1,10 +1,7 @@
 package com.ilkda.server.record.service;
 
 import com.ilkda.server.book.model.Book;
-import com.ilkda.server.book.repository.BookRepository;
-import com.ilkda.server.exception.NotFoundException;
 import com.ilkda.server.member.model.Member;
-import com.ilkda.server.member.repository.MemberRepository;
 import com.ilkda.server.record.dto.RecordTextForm;
 import com.ilkda.server.record.dto.RegisterRecordForm;
 import com.ilkda.server.record.model.DailyRecord;
@@ -12,7 +9,7 @@ import com.ilkda.server.record.model.Record;
 import com.ilkda.server.record.repository.DailyRecordRepository;
 import com.ilkda.server.record.repository.RecordRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +17,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -53,9 +50,9 @@ public class RecordService {
                 .build();
         recordRepository.save(record);
 
+        log.info("record#{} 읽기 등록 성공", record.getId());
         return record.getId();
     }
-
 
     /**
      * 이전 페이지보다 뒷 페이지로 넘어갔으면 DailyRecord를 추가합니다.
@@ -67,6 +64,7 @@ public class RecordService {
         updateDailyRecord(record, newPage);
         record.updateReadPage(newPage);
 
+        log.info("record#{} 읽기 페이지 업데이트 성공", recordId);
         return recordId;
     }
 
@@ -75,6 +73,8 @@ public class RecordService {
         Record record = recordFinder.getRecordById(recordId);
 
         record.updateText(form.getText());
+
+        log.info("record#{} 읽기 감상기록 업데이트 성공", recordId);
         return recordId;
     }
 
@@ -90,6 +90,7 @@ public class RecordService {
         }
         record.completeRead();
 
+        log.info("record#{} 읽기 마침 성공", recordId);
         return recordId;
     }
 
