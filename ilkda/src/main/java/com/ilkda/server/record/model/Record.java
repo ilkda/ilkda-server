@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -48,25 +49,30 @@ public class Record extends BaseEntity {
     }
 
     public void updateReadPage(Long page) {
+        validateUpdateReadPage(page);
         this.readPage = page;
     }
 
     public void updateText(String text) {
+        validateTextMaxLength(text);
         this.text = text;
     }
 
     public void completeRead() {
+        validateRecordNotComplete();
+
         this.complete = true;
     }
 
+    public boolean readLastPage() {
+        return Objects.equals(this.readPage, this.book.getPage());
+    }
 
-    /** 페이지 수 업데이트는 끝나지 않은 읽기에서만 가능합니다.*/
+
+    /** 페이지 업데이트는 끝나지 않은 읽기에서만 가능합니다.*/
     public void validateUpdateReadPage(Long updatePage) {
         validateRecordNotComplete();
-
-        if(updatePage < 0 || updatePage > this.getBook().getPage()) {
-            throw new IllegalStateException("해당 페이지로 업데이트 할 수 없습니다.");
-        }
+        validatePageRange(updatePage);
     }
 
     public void validateRecordNotComplete() {
@@ -75,9 +81,15 @@ public class Record extends BaseEntity {
         }
     }
 
-    public void validateTextMaxLength() {
-        if(this.text.length() > MAX_TEXT_LENGTH) {
+    public void validateTextMaxLength(String text) {
+        if(text.length() > MAX_TEXT_LENGTH) {
             throw new IllegalStateException("최대 감상 기록 글자 수를 초과했습니다.");
+        }
+    }
+
+    private void validatePageRange(Long updatePage) {
+        if(updatePage < 0 || updatePage > this.book.getPage()) {
+            throw new IllegalStateException("해당 페이지로 업데이트 할 수 없습니다.");
         }
     }
 }

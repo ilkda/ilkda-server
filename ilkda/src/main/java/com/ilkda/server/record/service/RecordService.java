@@ -1,21 +1,21 @@
 package com.ilkda.server.record.service;
 
 import com.ilkda.server.book.model.Book;
-import com.ilkda.server.book.repository.BookRepository;
-import com.ilkda.server.exception.NotFoundException;
 import com.ilkda.server.member.model.Member;
-import com.ilkda.server.member.repository.MemberRepository;
-import com.ilkda.server.record.dto.RecordPageForm;
 import com.ilkda.server.record.dto.RecordTextForm;
 import com.ilkda.server.record.dto.RegisterRecordForm;
+import com.ilkda.server.record.model.DailyRecord;
 import com.ilkda.server.record.model.Record;
+import com.ilkda.server.record.repository.DailyRecordRepository;
 import com.ilkda.server.record.repository.RecordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Slf4j
@@ -24,22 +24,23 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class RecordService {
 
-    private static final Long MAX_READ_COUNT = 5L;
+    private final RecordFinder recordFinder;
 
     private final RecordRepository recordRepository;
-    private final MemberRepository memberRepository;
-    private final BookRepository bookRepository;
+
+    private final DailyRecordRepository dailyRecordRepository;
+
 
     @Transactional
     public Long createRecord(Long memberId, RegisterRecordForm form) {
-        Member member = findMember(memberId);
-        Book book = findBook(form.getBookId());
+        Member member = recordFinder.getMember(memberId);
+        Book book = recordFinder.getBook(form.getBookId());
 
-        if(moreThanMaxReadCount(member)) {
+        if (moreThanMaxReadCount(member)) {
             throw new IllegalStateException("최대 읽기 수를 초과했습니다");
         }
 
-        if(duplicatedRecord(book, member)) {
+        if (duplicatedRecord(book, member)) {
             throw new IllegalStateException("이미 존재하는 읽기입니다.");
         }
 
@@ -53,32 +54,15 @@ public class RecordService {
         return record.getId();
     }
 
-    public List<Record> getAllRecordReading(Long memberId) {
-        Member member = findMember(memberId);
-
-        List<Record> recordList = recordRepository.findAllByMemberAndComplete(member, false);
-
-        log.info("member#{} 현재 읽기 목록 조회 성공", memberId);
-        return recordList;
-    }
-
-    public Record getRecordReading(Long recordId) {
-        Record record = recordRepository.findById(recordId)
-                .orElseThrow(() -> {
-                    throw new NotFoundException("존재하지 않는 읽기입니다.");
-                });
-
-        log.info("record#{} 읽기 한 건 조회 성공", recordId);
-        return record;
-    }
-
+    /**
+     * 이전 페이지보다 뒷 페이지로 넘어갔으면 DailyRecord를 추가합니다.
+     */
     @Transactional
-    public Long updateReadPage(Long recordId, RecordPageForm form) {
-        Record record = getRecordReading(recordId);
-        Long page = form.getPage();
+    public Long updateReadPage(Long recordId, Long newPage) {
+        Record record = recordFinder.getRecordById(recordId);
 
-        record.validateUpdateReadPage(page);
-        record.updateReadPage(page);
+        updateDailyRecord(record, newPage);
+        record.updateReadPage(newPage);
 
         log.info("record#{} 읽기 페이지 업데이트 성공", recordId);
         return recordId;
@@ -86,46 +70,88 @@ public class RecordService {
 
     @Transactional
     public Long updateText(Long recordId, RecordTextForm form) {
-        Record record = getRecordReading(recordId);
+        Record record = recordFinder.getRecordById(recordId);
 
-        record.validateTextMaxLength();
         record.updateText(form.getText());
 
         log.info("record#{} 읽기 감상기록 업데이트 성공", recordId);
         return recordId;
     }
 
+    /**
+     * 페이지를 마지막 페이지까가지 업데이트 하지 않고 읽기 마침을 한 경우, 페이지를 마지막 페이지로 업데이트 한 후 읽기를 종료해야 합니다.
+     */
     @Transactional
     public Long completeRead(Long recordId) {
-        Record record = getRecordReading(recordId);
+        Record record = recordFinder.getRecordById(recordId);
 
-        record.validateRecordNotComplete();
+        if (!record.readLastPage()) {
+            updateReadPage(record.getId(), record.getBook().getPage());
+        }
         record.completeRead();
 
         log.info("record#{} 읽기 마침 성공", recordId);
         return recordId;
     }
 
-
-    private Member findMember(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> {
-                    throw new NotFoundException("존재하지 않는 회원입니다.");
-                });
+    public Record getRecordById(Long memberId) {
+        return recordFinder.getRecordById(memberId);
     }
 
-    private Book findBook(Long bookId) {
-        return bookRepository.findById(bookId)
-                .orElseThrow(() -> {
-                    throw new NotFoundException("존재하지 않는 책입니다.");
-                });
+    public List<Record> getAllRecordReading(Long memberId) {
+        return recordFinder.getAllRecordByComplete(memberId, false);
+    }
+
+    public List<Record> getAllRecordHistory(Long memberId) {
+        return recordFinder.getAllRecordByComplete(memberId, true);
+    }
+
+    public List<DailyRecord> getMonthRecord(Long memberId, int year, int month) {
+        return recordFinder.getMonthRecord(memberId, year, month);
+    }
+
+    public Long getMonthReadDateCount(Long memberId, int year, int month) {
+        return recordFinder.getMonthReadDateCount(memberId, year, month);
+    }
+
+    public Long getYearMaxReadPageCount(Long memberId, int year) {
+        return recordFinder.getYearMaxReadPageCount(memberId, year);
+    }
+
+    public Long getYearMinReadPageCount(Long memberId, int year) {
+        return recordFinder.getYearMinReadPageCount(memberId, year);
+    }
+
+    /**
+     * 읽기 페이지가 이전에 비해 증가한 경우 DailyRecord를 추가합니다.<br>
+     * 이미 오늘 DailyRecord가 존재하는 경우, 새 데이터를 추가하는 대신 readPageCount 필드만 업데이트 해야 합니다.
+     */
+    @Transactional
+    protected void updateDailyRecord(Record record, Long newPage) {
+        Long oldPage = record.getReadPage();
+
+        if (oldPage < newPage) {
+            LocalDateTime fromDate = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+            LocalDateTime toDate = fromDate.plusDays(1);
+            DailyRecord dailyRecord = recordFinder.getDailyRecordByRegDateBetween(fromDate, toDate)
+                    .orElse(DailyRecord.builder()
+                            .readPageCount(0L)
+                            .member(record.getMember())
+                            .build());
+
+            Long readPageCount = newPage - oldPage;
+            dailyRecord.plusReadPageCount(readPageCount);
+
+            dailyRecordRepository.save(dailyRecord);
+        }
     }
 
     private Boolean moreThanMaxReadCount(Member member) {
-        return !recordRepository.findRecordCountLessThanMax(member.getId(), false, MAX_READ_COUNT);
+        return recordFinder.checkRecordCountLessThanMax(member);
     }
 
     private Boolean duplicatedRecord(Book book, Member member) {
-        return recordRepository.existsRecordByBookAndMember(book, member);
+        return recordFinder.checkExistsRecordByBookAndMember(book, member);
     }
+
 }

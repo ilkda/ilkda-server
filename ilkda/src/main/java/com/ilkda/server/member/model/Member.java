@@ -28,7 +28,6 @@ public class Member extends BaseEntity {
     private Role role = Role.ROLE_GUEST;
 
     @Builder
-
     public Member(Long id, Long kakaoId, String nickname, String profileImage, Role role) {
         super();
         this.id = id;
@@ -37,4 +36,5 @@ public class Member extends BaseEntity {
         this.profileImage = profileImage;
         this.role = role;
     }
+
 }

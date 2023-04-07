@@ -1,9 +1,6 @@
 package com.ilkda.server.record.controller;
 
-import com.ilkda.server.record.dto.RecordDTO;
-import com.ilkda.server.record.dto.RecordPageForm;
-import com.ilkda.server.record.dto.RecordTextForm;
-import com.ilkda.server.record.dto.RegisterRecordForm;
+import com.ilkda.server.record.dto.*;
 import com.ilkda.server.record.model.Record;
 import com.ilkda.server.record.service.RecordService;
 import com.ilkda.server.security.details.CustomUserDetails;
@@ -38,16 +35,44 @@ public class RecordController {
         );
     }
 
+    @GetMapping("/history")
+    public SuccessResponse<List<RecordDTO>> getAllReadingHistory(@AuthenticationPrincipal CustomUserDetails user) {
+        Long memberId = user.getMemberId();
+        return new SuccessResponse<>(
+                RecordDTO.getRecordDTOList(recordService.getAllRecordHistory(memberId))
+        );
+    }
+
     @GetMapping("/{id}")
     public SuccessResponse<RecordDTO> getRecordReading(@PathVariable Long id) {
-        Record record = recordService.getRecordReading(id);
+        Record record = recordService.getRecordById(id);
         return new SuccessResponse<>(RecordDTO.of(record));
+    }
+
+    @GetMapping("/daily/monthly")
+    public SuccessResponse<List<DailyRecordDTO>> getMonthRecord(@RequestParam int year,
+                                                                @RequestParam int month,
+                                                                @AuthenticationPrincipal CustomUserDetails user) {
+        Long memberId = user.getMemberId();
+        return new SuccessResponse<>(DailyRecordDTO.of(recordService.getMonthRecord(memberId, year, month)));
+    }
+
+    @GetMapping("/daily/info")
+    public SuccessResponse<DailyRecordInfoDTO> getDailyRecordInfo(@RequestParam int year,
+                                                                  @RequestParam int month,
+                                                                  @AuthenticationPrincipal CustomUserDetails user) {
+        Long memberId = user.getMemberId();
+        return new SuccessResponse<>(DailyRecordInfoDTO.builder()
+                .yearMaxReadPageCount(recordService.getYearMaxReadPageCount(memberId, year))
+                .yearMinReadPageCount(recordService.getYearMinReadPageCount(memberId, year))
+                .monthReadDateCount(recordService.getMonthReadDateCount(memberId, year, month))
+                .build());
     }
 
     @PutMapping("/{id}/page")
     public SuccessResponse<Long> updateReadPage(@PathVariable Long id,
                                                 @RequestBody RecordPageForm form) {
-        return new SuccessResponse<>(recordService.updateReadPage(id, form));
+        return new SuccessResponse<>(recordService.updateReadPage(id, form.getPage()));
     }
 
     @PutMapping("/{id}/text")
