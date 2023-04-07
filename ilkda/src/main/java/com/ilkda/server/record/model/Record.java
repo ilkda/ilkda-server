@@ -88,7 +88,7 @@ public class Record extends BaseEntity {
     }
 
     private void validatePageRange(Long updatePage) {
-        if(updatePage < 0 || updatePage > this.getBook().getPage()) {
+        if(updatePage < 0 || updatePage > this.book.getPage()) {
             throw new IllegalStateException("해당 페이지로 업데이트 할 수 없습니다.");
         }
     }
