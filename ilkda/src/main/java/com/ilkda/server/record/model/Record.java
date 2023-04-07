@@ -54,7 +54,7 @@ public class Record extends BaseEntity {
     }
 
     public void updateText(String text) {
-        validateTextMaxLength();
+        validateTextMaxLength(text);
         this.text = text;
     }
 
@@ -81,8 +81,8 @@ public class Record extends BaseEntity {
         }
     }
 
-    public void validateTextMaxLength() {
-        if(this.text.length() > MAX_TEXT_LENGTH) {
+    public void validateTextMaxLength(String text) {
+        if(text.length() > MAX_TEXT_LENGTH) {
             throw new IllegalStateException("최대 감상 기록 글자 수를 초과했습니다.");
         }
     }
