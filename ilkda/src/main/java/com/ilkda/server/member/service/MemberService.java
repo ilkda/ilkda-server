@@ -38,4 +38,21 @@ public class MemberService {
     public boolean existsMember(Long memberId) {
         return memberRepository.existsById(memberId);
     }
+
+    @Transactional
+    public Long updateNickname(Member member, String nickname) {
+        if(member.checkNickname(nickname)) return member.getId();
+
+        if(existsNickname(nickname)) {
+            log.info("닉네임 업데이트 실패 - 중복된 닉네임");
+            throw new IllegalStateException("이미 존재하는 닉네임입니다.");
+        }
+
+        member.updateNickname(nickname);
+        return member.getId();
+    }
+
+    private boolean existsNickname(String nickname) {
+        return memberRepository.existsByNickname(nickname);
+    }
 }

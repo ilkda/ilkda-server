@@ -51,10 +51,12 @@ public class SecurityConfig {
                 .requestMatchers()
                 .antMatchers("/api/v1/books/**")
                 .antMatchers("/api/v1/records/**")
+                .antMatchers("/api/v1/members/**")
                 .and()
                 .authorizeRequests()
                 .antMatchers("/api/v1/books/**").hasRole("USER")
                 .antMatchers("/api/v1/records/**").hasRole("USER")
+                .antMatchers("/api/v1/members/**").hasRole("USER")
                 .and()
                 .addFilterAfter(authenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
                 .build();
