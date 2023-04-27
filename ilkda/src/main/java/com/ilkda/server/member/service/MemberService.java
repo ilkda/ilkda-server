@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -50,6 +52,10 @@ public class MemberService {
 
         member.updateNickname(nickname);
         return member.getId();
+    }
+
+    public List<Member> getMembersByNickname(String nickname) {
+        return memberRepository.findByNicknameContains(nickname);
     }
 
     private boolean existsNickname(String nickname) {
