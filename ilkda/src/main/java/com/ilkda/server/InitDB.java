@@ -14,7 +14,7 @@ public class InitDB {
 
     @PostConstruct
     public void init() {
-        aladinService.storeBooks();
+        aladinService.storeBooks("객체지향");
     }
 
 }
