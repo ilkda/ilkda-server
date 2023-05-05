@@ -1,5 +1,6 @@
 package com.ilkda.server.club.controller;
 
+import com.ilkda.server.club.dto.AddMemberForm;
 import com.ilkda.server.club.dto.CreateClubForm;
 import com.ilkda.server.club.service.ClubService;
 import com.ilkda.server.security.details.CustomUserDetails;
@@ -22,5 +23,11 @@ public class ClubController {
     public SuccessResponse<Long> createClub(@AuthenticationPrincipal CustomUserDetails user,
                                               @RequestBody CreateClubForm form) {
         return new SuccessResponse<>(clubService.createClub(user.getMember(), form));
+    }
+
+    @PostMapping("/member")
+    public SuccessResponse<String> addMember(@RequestBody AddMemberForm form) {
+        clubService.addMember(form);
+        return new SuccessResponse<>("모임원을 추가했습니다.");
     }
 }
