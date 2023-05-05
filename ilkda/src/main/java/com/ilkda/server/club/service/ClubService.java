@@ -2,6 +2,8 @@ package com.ilkda.server.club.service;
 
 import com.ilkda.server.club.dto.CreateClubForm;
 import com.ilkda.server.club.model.Club;
+import com.ilkda.server.club.model.ClubMember;
+import com.ilkda.server.club.repository.ClubMemberRepository;
 import com.ilkda.server.club.repository.ClubRepository;
 import com.ilkda.server.member.model.Member;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ClubService {
 
     private final ClubRepository clubRepository;
+    private final ClubMemberRepository clubMemberRepository;
 
     @Transactional
     public Long createClub(Member member, CreateClubForm form) {
@@ -25,7 +28,17 @@ public class ClubService {
                 .build();
         clubRepository.save(club);
 
+        addMember(club, member);
+
         log.info("club#{} 모임 생성 성공", club.getId());
         return club.getId();
+    }
+
+    private void addMember(Club club, Member member) {
+        ClubMember clubMember = ClubMember.builder()
+                .club(club)
+                .clubMember(member)
+                .build();
+        clubMemberRepository.save(clubMember);
     }
 }

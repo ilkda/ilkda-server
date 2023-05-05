@@ -1,5 +1,6 @@
 package com.ilkda.server.club.model;
 
+import com.ilkda.server.base.BaseEntity;
 import com.ilkda.server.member.model.Member;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -14,9 +15,10 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "clubs")
 @Getter
-public class Club {
+public class Club extends BaseEntity {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     @Column(name = "club_id")
     private Long id;
 
@@ -26,15 +28,15 @@ public class Club {
     @JoinColumn(name = "leader_id")
     private Member leader;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Member> clubMembers = new ArrayList<>();
+    @OneToMany(mappedBy = "club")
+    private List<ClubMember> members = new ArrayList<>();
 
     @Builder
     public Club(Long id, String name, Member leader) {
+        super();
+
         this.id = id;
         this.name = name;
         this.leader = leader;
-
-        clubMembers.add(leader);
     }
 }
