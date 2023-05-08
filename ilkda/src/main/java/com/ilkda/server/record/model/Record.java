@@ -4,7 +4,6 @@ import com.ilkda.server.base.BaseEntity;
 import com.ilkda.server.book.model.Book;
 import com.ilkda.server.member.model.Member;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
@@ -13,16 +12,17 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "reading_records", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"member_id", "book_id"})
 })
-public class Record extends BaseEntity {
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public abstract class Record extends BaseEntity {
 
     private static final int MAX_TEXT_LENGTH = 500;
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "record_id")
     private Long id;
 
@@ -40,8 +40,7 @@ public class Record extends BaseEntity {
 
     private Boolean complete = false;
 
-    @Builder
-    public Record(Long id, Member member, Book book) {
+    protected Record(Long id, Member member, Book book) {
         super();
         this.id = id;
         this.member = member;
@@ -60,14 +59,12 @@ public class Record extends BaseEntity {
 
     public void completeRead() {
         validateRecordNotComplete();
-
         this.complete = true;
     }
 
     public boolean readLastPage() {
         return Objects.equals(this.readPage, this.book.getPage());
     }
-
 
     /** 페이지 업데이트는 끝나지 않은 읽기에서만 가능합니다.*/
     public void validateUpdateReadPage(Long updatePage) {
@@ -76,7 +73,7 @@ public class Record extends BaseEntity {
     }
 
     public void validateRecordNotComplete() {
-        if(this.getComplete()) {
+        if(this.complete) {
             throw new IllegalStateException("끝난 읽기를 업데이트 할 수 없습니다.");
         }
     }

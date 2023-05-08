@@ -1,4 +1,4 @@
-package com.ilkda.server.record.service;
+package com.ilkda.server.record.service.reader;
 
 import com.ilkda.server.book.model.Book;
 import com.ilkda.server.book.repository.BookRepository;
@@ -7,10 +7,10 @@ import com.ilkda.server.member.model.Member;
 import com.ilkda.server.record.model.DailyRecord;
 import com.ilkda.server.record.model.Record;
 import com.ilkda.server.record.repository.DailyRecordRepository;
-import com.ilkda.server.record.repository.RecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,22 +18,22 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class RecordReader {
-
-    private final RecordRepository recordRepository;
+@Transactional(readOnly = true)
+public abstract class RecordReader {
 
     private final DailyRecordRepository dailyRecordRepository;
 
     private final BookRepository bookRepository;
 
-    private static final Long MAX_READ_COUNT = 5L;
+    protected static final Long MAX_READ_COUNT = 5L;
 
-    public Record getRecordById(Long recordId) {
-        return recordRepository.findById(recordId)
-                .orElseThrow(() -> {
-                    throw new NotFoundException("존재하지 않는 읽기입니다.");
-                });
-    }
+    public abstract Record getRecordById(Long recordId);
+
+    public abstract List<Record> getAllRecordByComplete(Member member, boolean complete);
+
+    public abstract Boolean checkRecordCountLessThanMax(Member member);
+
+    public abstract Boolean checkExistsRecordByBookAndMember(Book book, Member member);
 
     public Optional<DailyRecord> getDailyRecordByRegDateBetween(LocalDateTime fromDate, LocalDateTime toDate) {
         return dailyRecordRepository.findByRegDateBetween(fromDate, toDate);
@@ -73,22 +73,10 @@ public class RecordReader {
                 .findTopReadPageCountByMemberAndRegDateBetween(member, fromDate, toDate, sort);
     }
 
-    public List<Record> getAllRecordByComplete(Member member, boolean complete) {
-        return recordRepository.findAllByMemberAndComplete(member, complete);
-    }
-
     public Book getBook(Long bookId) {
         return bookRepository.findById(bookId)
                 .orElseThrow(() -> {
                     throw new NotFoundException("존재하지 않는 책입니다.");
                 });
-    }
-
-    public Boolean checkRecordCountLessThanMax(Member member) {
-        return !recordRepository.findRecordCountLessThanMax(member.getId(), false, MAX_READ_COUNT);
-    }
-
-    public Boolean checkExistsRecordByBookAndMember(Book book, Member member) {
-        return recordRepository.existsRecordByBookAndMember(book, member);
     }
 }

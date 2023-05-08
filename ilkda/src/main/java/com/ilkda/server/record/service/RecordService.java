@@ -5,6 +5,8 @@ import com.ilkda.server.record.dto.RecordTextForm;
 import com.ilkda.server.record.dto.RegisterRecordForm;
 import com.ilkda.server.record.model.DailyRecord;
 import com.ilkda.server.record.model.Record;
+import com.ilkda.server.record.service.reader.RecordReader;
+import com.ilkda.server.record.service.updater.RecordUpdater;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,7 +16,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class RecordService {
+public abstract class RecordService {
 
     private final RecordReader recordReader;
 

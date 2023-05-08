@@ -1,4 +1,4 @@
-package com.ilkda.server.record.service;
+package com.ilkda.server.record.service.updater;
 
 import com.ilkda.server.book.model.Book;
 import com.ilkda.server.member.model.Member;
@@ -7,7 +7,7 @@ import com.ilkda.server.record.dto.RegisterRecordForm;
 import com.ilkda.server.record.model.DailyRecord;
 import com.ilkda.server.record.model.Record;
 import com.ilkda.server.record.repository.DailyRecordRepository;
-import com.ilkda.server.record.repository.RecordRepository;
+import com.ilkda.server.record.service.reader.RecordReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,9 +21,7 @@ import java.time.LocalTime;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class RecordUpdater {
-
-    private final RecordRepository recordRepository;
+public abstract class RecordUpdater {
 
     private final DailyRecordRepository dailyRecordRepository;
 
@@ -41,15 +39,13 @@ public class RecordUpdater {
             throw new IllegalStateException("이미 존재하는 읽기입니다.");
         }
 
-        Record record = Record.builder()
-                .book(book)
-                .member(member)
-                .build();
-        recordRepository.save(record);
+        Record record = saveRecord(book, member);
 
         log.info("record#{} 읽기 등록 성공", record.getId());
         return record.getId();
     }
+
+    abstract protected Record saveRecord(Book book, Member member);
 
     /**
      * 이전 페이지보다 뒷 페이지로 넘어갔으면 DailyRecord를 추가합니다.
