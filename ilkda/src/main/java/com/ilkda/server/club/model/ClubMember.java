@@ -4,6 +4,7 @@ import com.ilkda.server.base.BaseEntity;
 import com.ilkda.server.member.model.Member;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -13,6 +14,7 @@ import javax.persistence.*;
 @Table(name = "club_members", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"club_id", "member_id"})
 })
+@Getter
 public class ClubMember extends BaseEntity {
 
     @Id @GeneratedValue
@@ -24,11 +26,11 @@ public class ClubMember extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    private Member clubMember;
+    private Member member;
 
     @Builder
-    public ClubMember(Club club, Member clubMember) {
+    public ClubMember(Club club, Member member) {
         this.club = club;
-        this.clubMember = clubMember;
+        this.member = member;
     }
 }

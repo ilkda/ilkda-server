@@ -5,7 +5,10 @@ import com.ilkda.server.club.model.ClubMember;
 import com.ilkda.server.member.model.Member;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.List;
+
 public interface ClubMemberRepository extends CrudRepository<ClubMember, Long> {
 
-    Boolean existsByClubAndClubMember(Club club, Member member);
+    Boolean existsByClubAndMember(Club club, Member member);
+
 }
