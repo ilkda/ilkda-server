@@ -14,6 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -49,6 +52,13 @@ public class ClubService {
         log.info("club#{} 모임원 추가 성공", club.getId());
     }
 
+    public List<Member> getClubMembers(Long clubId) {
+        return clubMemberRepository.findByClub(getClub(clubId))
+                .stream()
+                .map(ClubMember::getMember)
+                .collect(Collectors.toList());
+    }
+
     private void addMember(Club club, Member member) {
         if(memberInClub(club, member)) {
             throw new IllegalStateException("이미 모임에 가입된 회원입니다.");
@@ -56,12 +66,12 @@ public class ClubService {
 
         ClubMember clubMember = ClubMember.builder()
                 .club(club)
-                .clubMember(member)
+                .member(member)
                 .build();
         clubMemberRepository.save(clubMember);
     }
 
-    private Club getClub(Long clubId) {
+    public Club getClub(Long clubId) {
         return clubRepository.findById(clubId)
                 .orElseThrow(() -> {
                     throw new NotFoundException("존재하지 않는 모임입니다.");
@@ -76,6 +86,6 @@ public class ClubService {
     }
 
     private boolean memberInClub(Club club, Member member) {
-        return clubMemberRepository.existsByClubAndClubMember(club, member);
+        return clubMemberRepository.existsByClubAndMember(club, member);
     }
 }

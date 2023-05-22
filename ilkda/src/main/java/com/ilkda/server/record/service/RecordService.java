@@ -22,8 +22,10 @@ public abstract class RecordService {
 
     private final RecordUpdater recordUpdater;
 
-    public Long createRecord(Member member, RegisterRecordForm form) {
-        return recordUpdater.createRecord(member, form);
+    public static final Long MAX_READ_COUNT = 5L;
+
+    public void createRecord(Member member, RegisterRecordForm form) {
+        recordUpdater.createRecord(member, form);
     }
 
     public Record getRecordById(Long memberId) {

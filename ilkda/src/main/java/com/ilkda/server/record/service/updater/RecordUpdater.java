@@ -1,6 +1,5 @@
 package com.ilkda.server.record.service.updater;
 
-import com.ilkda.server.book.model.Book;
 import com.ilkda.server.member.model.Member;
 import com.ilkda.server.record.dto.RecordTextForm;
 import com.ilkda.server.record.dto.RegisterRecordForm;
@@ -28,24 +27,7 @@ public abstract class RecordUpdater {
     private final RecordReader recordReader;
 
     @Transactional
-    public Long createRecord(Member member, RegisterRecordForm form) {
-        Book book = recordReader.getBook(form.getBookId());
-
-        if (moreThanMaxReadCount(member)) {
-            throw new IllegalStateException("최대 읽기 수를 초과했습니다");
-        }
-
-        if (duplicatedRecord(book, member)) {
-            throw new IllegalStateException("이미 존재하는 읽기입니다.");
-        }
-
-        Record record = saveRecord(book, member);
-
-        log.info("record#{} 읽기 등록 성공", record.getId());
-        return record.getId();
-    }
-
-    abstract protected Record saveRecord(Book book, Member member);
+    public abstract void createRecord(Member member, RegisterRecordForm form);
 
     /**
      * 이전 페이지보다 뒷 페이지로 넘어갔으면 DailyRecord를 추가합니다.
@@ -111,11 +93,5 @@ public abstract class RecordUpdater {
         }
     }
 
-    private Boolean moreThanMaxReadCount(Member member) {
-        return recordReader.checkRecordCountLessThanMax(member);
-    }
 
-    private Boolean duplicatedRecord(Book book, Member member) {
-        return recordReader.checkExistsRecordByBookAndMember(book, member);
-    }
 }

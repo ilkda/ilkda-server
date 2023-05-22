@@ -1,6 +1,7 @@
 package com.ilkda.server.record.repository;
 
 import com.ilkda.server.book.model.Book;
+import com.ilkda.server.club.model.Club;
 import com.ilkda.server.member.model.Member;
 import com.ilkda.server.record.model.ClubRecord;
 import com.ilkda.server.record.model.Record;
@@ -15,8 +16,7 @@ public interface ClubRecordRepository extends CrudRepository<ClubRecord, Long> {
     @Query("select r from ClubRecord r join fetch r.book where r.member = :member and r.complete = :complete")
     List<Record> findAllByMemberAndComplete(@Param("member") Member member, @Param("complete") boolean complete);
 
-    @Query("SELECT COUNT(r) <= :count from ClubRecord r WHERE r.member.id = :memberId AND r.complete = :complete")
-    Boolean findRecordCountLessThanMax(Long memberId, boolean complete, @Param("count") Long count);
+    Long countByCompleteAndClub(Boolean complete, Club club);
 
-    Boolean existsRecordByBookAndMember(Book book, Member member);
+    Boolean existsRecordByBookAndClub(Book book, Club club);
 }

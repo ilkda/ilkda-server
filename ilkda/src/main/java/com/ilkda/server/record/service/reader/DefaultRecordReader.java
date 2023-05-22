@@ -7,6 +7,7 @@ import com.ilkda.server.member.model.Member;
 import com.ilkda.server.record.model.Record;
 import com.ilkda.server.record.repository.DailyRecordRepository;
 import com.ilkda.server.record.repository.DefaultRecordRepository;
+import com.ilkda.server.record.service.RecordService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,12 +35,10 @@ public class DefaultRecordReader extends RecordReader {
         return defaultRecordRepository.findAllByMemberAndComplete(member, complete);
     }
 
-    @Override
     public Boolean checkRecordCountLessThanMax(Member member) {
-        return !defaultRecordRepository.findRecordCountLessThanMax(member.getId(), false, MAX_READ_COUNT);
+        return !defaultRecordRepository.findRecordCountLessThanMax(member.getId(), false, RecordService.MAX_READ_COUNT);
     }
 
-    @Override
     public Boolean checkExistsRecordByBookAndMember(Book book, Member member) {
         return defaultRecordRepository.existsRecordByBookAndMember(book, member);
     }

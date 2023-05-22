@@ -13,19 +13,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/records")
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/records")
 public abstract class RecordController {
 
     private final RecordService recordService;
 
-    @PostMapping
-    public SuccessResponse<Long> createRecord(@RequestBody RegisterRecordForm form,
-                                              @AuthenticationPrincipal CustomUserDetails user) {
-        return new SuccessResponse<>(
-                recordService.createRecord(user.getMember(), form)
-        );
-    }
+    public abstract SuccessResponse<String> createRecord(@RequestBody RegisterRecordForm form,
+                                                       @AuthenticationPrincipal CustomUserDetails user);
 
     @GetMapping
     public SuccessResponse<List<RecordDTO>> getAllReading(@AuthenticationPrincipal CustomUserDetails user) {

@@ -2,6 +2,7 @@ package com.ilkda.server.record.service.reader;
 
 import com.ilkda.server.book.model.Book;
 import com.ilkda.server.book.repository.BookRepository;
+import com.ilkda.server.club.model.Club;
 import com.ilkda.server.exception.NotFoundException;
 import com.ilkda.server.member.model.Member;
 import com.ilkda.server.record.model.Record;
@@ -34,13 +35,11 @@ public class ClubRecordReader extends RecordReader {
         return clubRecordRepository.findAllByMemberAndComplete(member, complete);
     }
 
-    @Override
-    public Boolean checkRecordCountLessThanMax(Member member) {
-        return !clubRecordRepository.findRecordCountLessThanMax(member.getId(), false, MAX_READ_COUNT);
+    public Long countRecordCountIn(Club club) {
+        return clubRecordRepository.countByCompleteAndClub(false, club);
     }
 
-    @Override
-    public Boolean checkExistsRecordByBookAndMember(Book book, Member member) {
-        return clubRecordRepository.existsRecordByBookAndMember(book, member);
+    public Boolean checkExistsRecordByBookAndMember(Book book, Club club) {
+        return clubRecordRepository.existsRecordByBookAndClub(book, club);
     }
 }

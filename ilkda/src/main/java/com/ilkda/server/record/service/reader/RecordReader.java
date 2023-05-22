@@ -25,15 +25,9 @@ public abstract class RecordReader {
 
     private final BookRepository bookRepository;
 
-    protected static final Long MAX_READ_COUNT = 5L;
-
     public abstract Record getRecordById(Long recordId);
 
     public abstract List<Record> getAllRecordByComplete(Member member, boolean complete);
-
-    public abstract Boolean checkRecordCountLessThanMax(Member member);
-
-    public abstract Boolean checkExistsRecordByBookAndMember(Book book, Member member);
 
     public Optional<DailyRecord> getDailyRecordByRegDateBetween(LocalDateTime fromDate, LocalDateTime toDate) {
         return dailyRecordRepository.findByRegDateBetween(fromDate, toDate);

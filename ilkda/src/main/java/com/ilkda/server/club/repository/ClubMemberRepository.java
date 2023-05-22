@@ -11,4 +11,5 @@ public interface ClubMemberRepository extends CrudRepository<ClubMember, Long> {
 
     Boolean existsByClubAndMember(Club club, Member member);
 
+    List<ClubMember> findByClub(Club club);
 }

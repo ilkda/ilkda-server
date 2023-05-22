@@ -11,4 +11,5 @@ import lombok.NoArgsConstructor;
 public class RegisterRecordForm {
 
     private Long bookId;
+    private Long clubId;
 }

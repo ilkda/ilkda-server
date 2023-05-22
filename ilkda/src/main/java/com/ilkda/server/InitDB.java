@@ -2,6 +2,7 @@ package com.ilkda.server;
 
 import com.ilkda.server.book.service.AladinService;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.util.Reflection;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -14,7 +15,7 @@ public class InitDB {
 
     @PostConstruct
     public void init() {
-        aladinService.storeBooks("객체지향");
+//        aladinService.storeBooks("파이썬");
     }
 
 }
