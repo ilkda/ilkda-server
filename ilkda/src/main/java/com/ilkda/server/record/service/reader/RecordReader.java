@@ -7,6 +7,7 @@ import com.ilkda.server.member.model.Member;
 import com.ilkda.server.record.model.DailyRecord;
 import com.ilkda.server.record.model.Record;
 import com.ilkda.server.record.repository.DailyRecordRepository;
+import com.ilkda.server.record.repository.RecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -25,9 +26,15 @@ public abstract class RecordReader {
 
     private final BookRepository bookRepository;
 
+    private final RecordRepository recordRepository;
+
     public abstract Record getRecordById(Long recordId);
 
-    public abstract List<Record> getAllRecordByComplete(Member member, boolean complete);
+    public abstract List<Record> getAllReadingRecord(Member member);
+
+    public List<Record> getAllCompletedRecord(Member member) {
+        return recordRepository.findByMemberAndComplete(member, true);
+    }
 
     public Optional<DailyRecord> getDailyRecordByRegDateBetween(LocalDateTime fromDate, LocalDateTime toDate) {
         return dailyRecordRepository.findByRegDateBetween(fromDate, toDate);

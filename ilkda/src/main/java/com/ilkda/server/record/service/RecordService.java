@@ -33,11 +33,11 @@ public abstract class RecordService {
     }
 
     public List<Record> getAllRecordReading(Member member) {
-        return recordReader.getAllRecordByComplete(member, false);
+        return recordReader.getAllReadingRecord(member);
     }
 
     public List<Record> getAllRecordHistory(Member member) {
-        return recordReader.getAllRecordByComplete(member, true);
+        return recordReader.getAllCompletedRecord(member);
     }
 
     public List<DailyRecord> getMonthRecord(Member member, int year, int month) {

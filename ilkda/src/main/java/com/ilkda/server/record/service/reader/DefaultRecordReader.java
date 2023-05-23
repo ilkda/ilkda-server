@@ -7,6 +7,7 @@ import com.ilkda.server.member.model.Member;
 import com.ilkda.server.record.model.Record;
 import com.ilkda.server.record.repository.DailyRecordRepository;
 import com.ilkda.server.record.repository.DefaultRecordRepository;
+import com.ilkda.server.record.repository.RecordRepository;
 import com.ilkda.server.record.service.RecordService;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +18,11 @@ public class DefaultRecordReader extends RecordReader {
 
     private final DefaultRecordRepository defaultRecordRepository;
 
-    public DefaultRecordReader(DefaultRecordRepository defaultRecordRepository, DailyRecordRepository dailyRecordRepository, BookRepository bookRepository) {
-        super(dailyRecordRepository, bookRepository);
+    public DefaultRecordReader(RecordRepository recordRepository,
+                               DefaultRecordRepository defaultRecordRepository,
+                               DailyRecordRepository dailyRecordRepository,
+                               BookRepository bookRepository) {
+        super(dailyRecordRepository, bookRepository, recordRepository);
         this.defaultRecordRepository = defaultRecordRepository;
     }
 
@@ -31,8 +35,8 @@ public class DefaultRecordReader extends RecordReader {
     }
 
     @Override
-    public List<Record> getAllRecordByComplete(Member member, boolean complete) {
-        return defaultRecordRepository.findAllByMemberAndComplete(member, complete);
+    public List<Record> getAllReadingRecord(Member member) {
+        return defaultRecordRepository.findAllByMemberAndComplete(member, true);
     }
 
     public Boolean checkRecordCountLessThanMax(Member member) {

@@ -8,6 +8,7 @@ import com.ilkda.server.member.model.Member;
 import com.ilkda.server.record.model.Record;
 import com.ilkda.server.record.repository.ClubRecordRepository;
 import com.ilkda.server.record.repository.DailyRecordRepository;
+import com.ilkda.server.record.repository.RecordRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,8 +18,11 @@ public class ClubRecordReader extends RecordReader {
 
     private final ClubRecordRepository clubRecordRepository;
 
-    public ClubRecordReader(ClubRecordRepository clubRecordRepository, DailyRecordRepository dailyRecordRepository, BookRepository bookRepository) {
-        super(dailyRecordRepository, bookRepository);
+    public ClubRecordReader(RecordRepository recordRepository,
+                            ClubRecordRepository clubRecordRepository,
+                            DailyRecordRepository dailyRecordRepository,
+                            BookRepository bookRepository) {
+        super(dailyRecordRepository, bookRepository, recordRepository);
         this.clubRecordRepository = clubRecordRepository;
     }
 
@@ -31,8 +35,8 @@ public class ClubRecordReader extends RecordReader {
     }
 
     @Override
-    public List<Record> getAllRecordByComplete(Member member, boolean complete) {
-        return clubRecordRepository.findAllByMemberAndComplete(member, complete);
+    public List<Record> getAllReadingRecord(Member member) {
+        return clubRecordRepository.findAllByMemberAndComplete(member, true);
     }
 
     public Long countRecordCountIn(Club club) {
