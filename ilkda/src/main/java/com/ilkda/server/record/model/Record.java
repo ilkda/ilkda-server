@@ -17,7 +17,8 @@ import java.util.Objects;
 @Table(name = "reading_records", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"member_id", "book_id"})
 })
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "DTYPE")
 public abstract class Record extends BaseEntity {
 
     private static final int MAX_TEXT_LENGTH = 500;

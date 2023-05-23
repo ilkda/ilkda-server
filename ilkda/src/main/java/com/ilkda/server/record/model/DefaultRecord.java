@@ -6,10 +6,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@DiscriminatorValue("DEFAULT")
 public class DefaultRecord extends Record {
 
     @Builder
