@@ -50,7 +50,7 @@ public class DefaultRecordUpdater extends RecordUpdater {
     }
 
     private Boolean moreThanMaxReadCount(Member member) {
-        return recordReader.checkRecordCountLessThanMax(member);
+        return !recordReader.checkRecordCountLessThanMax(member);
     }
 
     private Boolean duplicatedRecord(Book book, Member member) {
