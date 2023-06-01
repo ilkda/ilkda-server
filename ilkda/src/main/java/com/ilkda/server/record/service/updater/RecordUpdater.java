@@ -58,7 +58,7 @@ public abstract class RecordUpdater {
      */
     @Transactional
     public Long completeRead(Long recordId) {
-        Record record = recordReader.getRecordById(recordId);
+        Record record = recordReader.getEachRecordById(recordId);
 
         if (!record.readLastPage()) {
             updateReadPage(record.getId(), record.getBook().getPage());

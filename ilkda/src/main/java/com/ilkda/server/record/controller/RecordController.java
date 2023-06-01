@@ -30,7 +30,7 @@ public abstract class RecordController {
 
     @GetMapping("/api/v1/records/{id}")
     public SuccessResponse<RecordDTO> getRecordReading(@PathVariable Long id) {
-        Record record = recordService.getRecordById(id);
+        Record record = recordService.getEachRecordById(id);
         return new SuccessResponse<>(RecordDTO.of(record));
     }
 

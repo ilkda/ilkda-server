@@ -31,7 +31,7 @@ public class ClubRecordReader extends RecordReader {
     }
 
     @Override
-    public Record getRecordById(Long recordId) {
+    public Record getEachRecordById(Long recordId) {
         return clubRecordRepository.findById(recordId)
                 .orElseThrow(() -> {
                     throw new NotFoundException("존재하지 않는 읽기입니다.");

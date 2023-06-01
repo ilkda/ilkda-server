@@ -28,7 +28,14 @@ public abstract class RecordReader {
 
     private final RecordRepository recordRepository;
 
-    public abstract Record getRecordById(Long recordId);
+    public abstract Record getEachRecordById(Long recordId);
+
+    public Record getRecordById(Long recordId) {
+        return recordRepository.findById(recordId)
+                .orElseThrow(() -> {
+                    throw new RuntimeException("존재하지 않는 읽기입니다.");
+                });
+    }
 
     public List<Record> getAllCompletedRecord(Member member) {
         return recordRepository.findByMemberAndComplete(member, true);

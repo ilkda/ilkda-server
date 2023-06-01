@@ -28,8 +28,8 @@ public abstract class RecordService {
         recordUpdater.createRecord(member, form);
     }
 
-    public Record getRecordById(Long memberId) {
-        return recordReader.getRecordById(memberId);
+    public Record getEachRecordById(Long memberId) {
+        return recordReader.getEachRecordById(memberId);
     }
 
     public List<Record> getAllRecordHistory(Member member) {
