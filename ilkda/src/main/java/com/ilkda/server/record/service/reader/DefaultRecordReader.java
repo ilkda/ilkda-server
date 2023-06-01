@@ -34,7 +34,6 @@ public class DefaultRecordReader extends RecordReader {
                 });
     }
 
-    @Override
     public List<Record> getAllReadingRecord(Member member) {
         return defaultRecordRepository.findAllByMemberAndComplete(member, true);
     }

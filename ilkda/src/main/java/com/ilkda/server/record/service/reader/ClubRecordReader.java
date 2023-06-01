@@ -3,6 +3,7 @@ package com.ilkda.server.record.service.reader;
 import com.ilkda.server.book.model.Book;
 import com.ilkda.server.book.repository.BookRepository;
 import com.ilkda.server.club.model.Club;
+import com.ilkda.server.club.service.ClubService;
 import com.ilkda.server.exception.NotFoundException;
 import com.ilkda.server.member.model.Member;
 import com.ilkda.server.record.model.Record;
@@ -17,13 +18,16 @@ import java.util.List;
 public class ClubRecordReader extends RecordReader {
 
     private final ClubRecordRepository clubRecordRepository;
+    private final ClubService clubService;
 
     public ClubRecordReader(RecordRepository recordRepository,
                             ClubRecordRepository clubRecordRepository,
                             DailyRecordRepository dailyRecordRepository,
-                            BookRepository bookRepository) {
+                            BookRepository bookRepository,
+                            ClubService clubService) {
         super(dailyRecordRepository, bookRepository, recordRepository);
         this.clubRecordRepository = clubRecordRepository;
+        this.clubService = clubService;
     }
 
     @Override
@@ -34,9 +38,9 @@ public class ClubRecordReader extends RecordReader {
                 });
     }
 
-    @Override
-    public List<Record> getAllReadingRecord(Member member) {
-        return clubRecordRepository.findAllByMemberAndComplete(member, true);
+    public List<Record> getAllReadingRecord(Member member, Long clubId) {
+        Club club = clubService.getClub(clubId);
+        return clubRecordRepository.findAllByMemberAndCompleteAndClub(member, false, club);
     }
 
     public Long countRecordCountIn(Club club) {

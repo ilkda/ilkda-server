@@ -30,8 +30,6 @@ public abstract class RecordReader {
 
     public abstract Record getRecordById(Long recordId);
 
-    public abstract List<Record> getAllReadingRecord(Member member);
-
     public List<Record> getAllCompletedRecord(Member member) {
         return recordRepository.findByMemberAndComplete(member, true);
     }

@@ -32,10 +32,6 @@ public abstract class RecordService {
         return recordReader.getRecordById(memberId);
     }
 
-    public List<Record> getAllRecordReading(Member member) {
-        return recordReader.getAllReadingRecord(member);
-    }
-
     public List<Record> getAllRecordHistory(Member member) {
         return recordReader.getAllCompletedRecord(member);
     }

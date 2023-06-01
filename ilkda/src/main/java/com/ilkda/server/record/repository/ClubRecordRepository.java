@@ -13,8 +13,8 @@ import java.util.List;
 
 public interface ClubRecordRepository extends CrudRepository<ClubRecord, Long> {
 
-    @Query("select r from ClubRecord r join fetch r.book where r.member = :member and r.complete = :complete")
-    List<Record> findAllByMemberAndComplete(@Param("member") Member member, @Param("complete") boolean complete);
+    @Query("select r from ClubRecord r join fetch r.book where r.member = :member and r.complete = :complete and r.club = :club")
+    List<Record> findAllByMemberAndCompleteAndClub(@Param("member") Member member, @Param("complete") boolean complete, @Param("club") Club club);
 
     Long countByCompleteAndClub(Boolean complete, Club club);
 
