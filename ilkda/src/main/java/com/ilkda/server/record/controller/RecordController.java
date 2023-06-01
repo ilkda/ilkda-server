@@ -14,20 +14,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/records")
 public abstract class RecordController {
 
     private final RecordService recordService;
 
     public abstract SuccessResponse<String> createRecord(@RequestBody RegisterRecordForm form,
                                                        @AuthenticationPrincipal CustomUserDetails user);
-
-    @GetMapping
-    public SuccessResponse<List<RecordDTO>> getAllReading(@AuthenticationPrincipal CustomUserDetails user) {
-        return new SuccessResponse<>(
-                RecordDTO.getRecordDTOList(recordService.getAllRecordReading(user.getMember()))
-        );
-    }
 
     @GetMapping("/history")
     public SuccessResponse<List<RecordDTO>> getAllReadingHistory(@AuthenticationPrincipal CustomUserDetails user) {
@@ -36,7 +28,7 @@ public abstract class RecordController {
         );
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/api/v1/records/{id}")
     public SuccessResponse<RecordDTO> getRecordReading(@PathVariable Long id) {
         Record record = recordService.getRecordById(id);
         return new SuccessResponse<>(RecordDTO.of(record));
