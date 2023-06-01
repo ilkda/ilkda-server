@@ -3,7 +3,7 @@ package com.ilkda.server.record.controller;
 import com.ilkda.server.member.model.Member;
 import com.ilkda.server.record.dto.*;
 import com.ilkda.server.record.model.Record;
-import com.ilkda.server.record.service.RecordService;
+import com.ilkda.server.record.service.DefaultRecordService;
 import com.ilkda.server.security.details.CustomUserDetails;
 import com.ilkda.server.utils.ApiUtil.*;
 import lombok.RequiredArgsConstructor;
@@ -14,12 +14,26 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public abstract class RecordController {
+@RequestMapping("/api/v1/records")
+public class RecordController {
 
-    private final RecordService recordService;
+    private final DefaultRecordService recordService;
 
-    public abstract SuccessResponse<String> createRecord(@RequestBody RegisterRecordForm form,
-                                                       @AuthenticationPrincipal CustomUserDetails user);
+    @PostMapping
+    public SuccessResponse<String> createRecord(@RequestBody RegisterRecordForm form,
+                                                @AuthenticationPrincipal CustomUserDetails user) {
+        recordService.createRecord(user.getMember(), form);
+        return new SuccessResponse<>("읽기가 생성됐습니다.");
+    }
+
+    @GetMapping
+    public SuccessResponse<List<RecordDTO>> getAllReading(@AuthenticationPrincipal CustomUserDetails user) {
+        return new SuccessResponse<>(
+                RecordDTO.getRecordDTOList(
+                        recordService.getAllReadingRecord(user.getMember())
+                )
+        );
+    }
 
     @GetMapping("/history")
     public SuccessResponse<List<RecordDTO>> getAllReadingHistory(@AuthenticationPrincipal CustomUserDetails user) {
@@ -28,7 +42,7 @@ public abstract class RecordController {
         );
     }
 
-    @GetMapping("/api/v1/records/{id}")
+    @GetMapping("/{id}")
     public SuccessResponse<RecordDTO> getRecordReading(@PathVariable Long id) {
         Record record = recordService.getEachRecordById(id);
         return new SuccessResponse<>(RecordDTO.of(record));

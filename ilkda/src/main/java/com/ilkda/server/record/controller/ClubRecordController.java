@@ -1,26 +1,22 @@
 package com.ilkda.server.record.controller;
 
-import com.ilkda.server.member.model.Member;
 import com.ilkda.server.record.dto.RecordDTO;
 import com.ilkda.server.record.dto.RegisterRecordForm;
 import com.ilkda.server.record.service.ClubRecordService;
 import com.ilkda.server.security.details.CustomUserDetails;
 import com.ilkda.server.utils.ApiUtil.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/records/clubs")
-public class ClubRecordController extends RecordController {
+public class ClubRecordController {
 
     private final ClubRecordService recordService;
-
-    public ClubRecordController(ClubRecordService recordService) {
-        super(recordService);
-        this.recordService = recordService;
-    }
 
     @PostMapping
     public SuccessResponse<String> createRecord(@RequestBody RegisterRecordForm form,
