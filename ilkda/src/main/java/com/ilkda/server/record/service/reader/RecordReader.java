@@ -40,6 +40,10 @@ public abstract class RecordReader {
         return recordRepository.findByMemberAndComplete(member, true);
     }
 
+    public Integer getCountCompleteRecord(Member member) {
+        return getAllCompletedRecord(member).size();
+    }
+
     public Optional<DailyRecord> getDailyRecordByRegDateBetween(LocalDateTime fromDate, LocalDateTime toDate) {
         return dailyRecordRepository.findByRegDateBetween(fromDate, toDate);
     }
