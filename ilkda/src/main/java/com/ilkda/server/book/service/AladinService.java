@@ -66,7 +66,7 @@ public class AladinService {
         return (JSONArray) jsonObject.get("item");
     }
 
-    private List<Book> getBooksDetail(JSONArray jsonArray) throws ParseException {
+    private List<Book> getBooksDetail(JSONArray jsonArray) {
         String itemLookUpUrl = "http://www.aladin.co.kr/ttb/api/ItemLookUp.aspx";
         Map<String, String> itemLookUpParameters = new HashMap<>();
         itemLookUpParameters.put("ttbkey", key);
@@ -85,8 +85,12 @@ public class AladinService {
                     HttpMethod.GET
             ).replaceAll(";", "");
 
-            Book book = createBookFromJson((JSONObject) ((JSONArray) ((JSONObject) jsonParser.parse(res)).get("item")).get(0));
-            bookList.add(book);
+            try {
+                Book book = createBookFromJson((JSONObject) ((JSONArray) ((JSONObject) jsonParser.parse(res)).get("item")).get(0));
+                bookList.add(book);
+            } catch (Exception e) {
+                log.error("책 상세 데이터 조회 실패 {} / {}", o, res);
+            }
         }
         return bookList;
     }
