@@ -1,5 +1,6 @@
 package com.ilkda.server.security.provider;
 
+import com.ilkda.server.jwt.payload.MemberJwtPayload;
 import com.ilkda.server.jwt.util.MemberJwtUtil;
 import com.ilkda.server.security.AuthenticationToken;
 import com.ilkda.server.security.details.CustomUserDetails;
@@ -21,7 +22,7 @@ public class JwtProvider implements AuthenticationProvider {
 
         MemberJwtUtil memberJwtUtil = new MemberJwtUtil(accessToken);
         CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(
-                String.valueOf(memberJwtUtil.getPayload().getMember_id()));
+                String.valueOf(((MemberJwtPayload)memberJwtUtil.getPayload()).getMember_id()));
 
         return new UsernamePasswordAuthenticationToken(
                 userDetails,
