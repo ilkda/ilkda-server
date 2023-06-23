@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public abstract class RecordUpdater {

@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-@Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public abstract class RecordReader {
