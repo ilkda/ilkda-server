@@ -53,10 +53,9 @@ public class ClubService {
     }
 
     public List<Member> getClubMembers(Long clubId) {
-        return clubMemberRepository.findByClub(getClub(clubId))
-                .stream()
-                .map(ClubMember::getMember)
-                .collect(Collectors.toList());
+        return ClubMember.clubMembers2Members(
+                clubMemberRepository.findByClub(getClub(clubId))
+        );
     }
 
     private void addMember(Club club, Member member) {

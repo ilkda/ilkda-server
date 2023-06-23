@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,5 +34,12 @@ public class ClubMember extends BaseEntity {
     public ClubMember(Club club, Member member) {
         this.club = club;
         this.member = member;
+    }
+
+    public static List<Member> clubMembers2Members(List<ClubMember> clubMembers) {
+        return clubMembers
+                .stream()
+                .map(ClubMember::getMember)
+                .collect(Collectors.toList());
     }
 }
