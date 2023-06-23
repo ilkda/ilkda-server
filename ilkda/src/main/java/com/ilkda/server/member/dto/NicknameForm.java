@@ -1,15 +1,14 @@
-package com.ilkda.server.record.dto;
+package com.ilkda.server.member.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class RegisterRecordForm {
+@AllArgsConstructor
+@Data
+public class NicknameForm {
 
-    private Long bookId;
-    private Long clubId;
+    private String nickname;
 }

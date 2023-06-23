@@ -37,4 +37,11 @@ public class Member extends BaseEntity {
         this.role = role;
     }
 
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public boolean checkNickname(String nickname) {
+        return this.nickname.equals(nickname);
+    }
 }

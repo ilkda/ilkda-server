@@ -35,9 +35,9 @@ public class AladinService {
     private final BookRepository bookRepository;
 
     @Transactional
-    public void storeBooks() {
+    public void storeBooks(String query) {
         try {
-            JSONArray jsonArray = getSearchBookList();
+            JSONArray jsonArray = getSearchBookList(query);
             List<Book> bookList = getBooksDetail(jsonArray);
             bookRepository.saveAll(bookList);
 
@@ -47,11 +47,11 @@ public class AladinService {
         }
     }
 
-    private JSONArray getSearchBookList() throws ParseException {
+    private JSONArray getSearchBookList(String query) throws ParseException {
         String itemSearchUrl = "http://www.aladin.co.kr/ttb/api/ItemSearch.aspx";
         Map<String, String> itemSearchParameters = new HashMap<>();
         itemSearchParameters.put("ttbkey", key);
-        itemSearchParameters.put("Query", "java");
+        itemSearchParameters.put("Query", query);
         itemSearchParameters.put("output", "js");
 
         String itemSearchResponse = sendHttpRequest(
@@ -66,7 +66,7 @@ public class AladinService {
         return (JSONArray) jsonObject.get("item");
     }
 
-    private List<Book> getBooksDetail(JSONArray jsonArray) throws ParseException {
+    private List<Book> getBooksDetail(JSONArray jsonArray) {
         String itemLookUpUrl = "http://www.aladin.co.kr/ttb/api/ItemLookUp.aspx";
         Map<String, String> itemLookUpParameters = new HashMap<>();
         itemLookUpParameters.put("ttbkey", key);
@@ -85,8 +85,12 @@ public class AladinService {
                     HttpMethod.GET
             ).replaceAll(";", "");
 
-            Book book = createBookFromJson((JSONObject) ((JSONArray) ((JSONObject) jsonParser.parse(res)).get("item")).get(0));
-            bookList.add(book);
+            try {
+                Book book = createBookFromJson((JSONObject) ((JSONArray) ((JSONObject) jsonParser.parse(res)).get("item")).get(0));
+                bookList.add(book);
+            } catch (Exception e) {
+                log.error("책 상세 데이터 조회 실패 {} / {}", o, res);
+            }
         }
         return bookList;
     }
@@ -113,8 +117,7 @@ public class AladinService {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(baseUrl);
         for(String name : parameters.keySet())
             builder.queryParam(name, parameters.get(name));
-
-        return builder.toUriString();
+        return builder.build().toUriString();
     }
 
     private Book createBookFromJson(JSONObject jsonObject) {

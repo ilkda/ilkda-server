@@ -1,8 +1,9 @@
 package com.ilkda.server.record.controller;
 
+import com.ilkda.server.member.model.Member;
 import com.ilkda.server.record.dto.*;
 import com.ilkda.server.record.model.Record;
-import com.ilkda.server.record.service.RecordService;
+import com.ilkda.server.record.service.DefaultRecordService;
 import com.ilkda.server.security.details.CustomUserDetails;
 import com.ilkda.server.utils.ApiUtil.*;
 import lombok.RequiredArgsConstructor;
@@ -16,36 +17,34 @@ import java.util.List;
 @RequestMapping("/api/v1/records")
 public class RecordController {
 
-    private final RecordService recordService;
+    private final DefaultRecordService recordService;
 
     @PostMapping
-    public SuccessResponse<Long> createRecord(@RequestBody RegisterRecordForm form,
-                                              @AuthenticationPrincipal CustomUserDetails user) {
-        Long memberId = user.getMemberId();
-        return new SuccessResponse<>(
-                recordService.createRecord(memberId, form)
-        );
+    public SuccessResponse<String> createRecord(@RequestBody RegisterRecordForm form,
+                                                @AuthenticationPrincipal CustomUserDetails user) {
+        recordService.createRecord(user.getMember(), form);
+        return new SuccessResponse<>("읽기가 생성됐습니다.");
     }
 
     @GetMapping
     public SuccessResponse<List<RecordDTO>> getAllReading(@AuthenticationPrincipal CustomUserDetails user) {
-        Long memberId = user.getMemberId();
         return new SuccessResponse<>(
-                RecordDTO.getRecordDTOList(recordService.getAllRecordReading(memberId))
+                RecordDTO.getRecordDTOList(
+                        recordService.getAllReadingRecord(user.getMember())
+                )
         );
     }
 
     @GetMapping("/history")
     public SuccessResponse<List<RecordDTO>> getAllReadingHistory(@AuthenticationPrincipal CustomUserDetails user) {
-        Long memberId = user.getMemberId();
         return new SuccessResponse<>(
-                RecordDTO.getRecordDTOList(recordService.getAllRecordHistory(memberId))
+                RecordDTO.getRecordDTOList(recordService.getAllRecordHistory(user.getMember()))
         );
     }
 
     @GetMapping("/{id}")
     public SuccessResponse<RecordDTO> getRecordReading(@PathVariable Long id) {
-        Record record = recordService.getRecordById(id);
+        Record record = recordService.getEachRecordById(id);
         return new SuccessResponse<>(RecordDTO.of(record));
     }
 
@@ -53,19 +52,18 @@ public class RecordController {
     public SuccessResponse<List<DailyRecordDTO>> getMonthRecord(@RequestParam int year,
                                                                 @RequestParam int month,
                                                                 @AuthenticationPrincipal CustomUserDetails user) {
-        Long memberId = user.getMemberId();
-        return new SuccessResponse<>(DailyRecordDTO.of(recordService.getMonthRecord(memberId, year, month)));
+        return new SuccessResponse<>(DailyRecordDTO.of(recordService.getMonthRecord(user.getMember(), year, month)));
     }
 
     @GetMapping("/daily/info")
     public SuccessResponse<DailyRecordInfoDTO> getDailyRecordInfo(@RequestParam int year,
                                                                   @RequestParam int month,
                                                                   @AuthenticationPrincipal CustomUserDetails user) {
-        Long memberId = user.getMemberId();
+        Member member = user.getMember();
         return new SuccessResponse<>(DailyRecordInfoDTO.builder()
-                .yearMaxReadPageCount(recordService.getYearMaxReadPageCount(memberId, year))
-                .yearMinReadPageCount(recordService.getYearMinReadPageCount(memberId, year))
-                .monthReadDateCount(recordService.getMonthReadDateCount(memberId, year, month))
+                .yearMaxReadPageCount(recordService.getYearMaxReadPageCount(member, year))
+                .yearMinReadPageCount(recordService.getYearMinReadPageCount(member, year))
+                .monthReadDateCount(recordService.getMonthReadDateCount(member, year, month))
                 .build());
     }
 
