@@ -64,7 +64,7 @@ public class ClubRecordUpdater extends RecordUpdater {
     }
 
     private Boolean moreThanMaxReadCount(Club club) {
-        return recordReader.countRecordCountIn(club) / club.getMembers().size() > RecordService.MAX_READ_COUNT;
+        return recordReader.countRecordCountIn(club) / club.getClubMembersSize() > RecordService.MAX_READ_COUNT;
     }
 
     private Boolean duplicatedRecord(Book book, Club club) {

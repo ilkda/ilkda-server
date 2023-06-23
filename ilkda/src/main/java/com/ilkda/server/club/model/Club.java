@@ -39,4 +39,8 @@ public class Club extends BaseEntity {
         this.name = name;
         this.leader = leader;
     }
+
+    public int getClubMembersSize() {
+        return this.members.size();
+    }
 }
