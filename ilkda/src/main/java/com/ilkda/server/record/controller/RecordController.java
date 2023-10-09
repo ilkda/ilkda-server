@@ -42,6 +42,11 @@ public class RecordController {
         );
     }
 
+    @GetMapping("/count")
+    public SuccessResponse<Integer> getAllCountRecord(@AuthenticationPrincipal CustomUserDetails user) {
+        return new SuccessResponse<>(recordService.getAllCountCompleteRecord(user.getMember()));
+    }
+
     @GetMapping("/{id}")
     public SuccessResponse<RecordDTO> getRecordReading(@PathVariable Long id) {
         Record record = recordService.getEachRecordById(id);

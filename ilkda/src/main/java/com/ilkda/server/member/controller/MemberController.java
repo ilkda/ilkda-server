@@ -25,6 +25,11 @@ public class MemberController {
         ));
     }
 
+    @GetMapping("/me")
+    public SuccessResponse<MemberDTO> getMember(@AuthenticationPrincipal CustomUserDetails user) {
+        return new SuccessResponse<>(MemberDTO.of(user.getMember()));
+    }
+
     @PutMapping("/nickname")
     public SuccessResponse<Long> updateNickname(@AuthenticationPrincipal CustomUserDetails user,
                                                 @RequestBody NicknameForm form) {

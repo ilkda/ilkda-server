@@ -35,6 +35,10 @@ public abstract class RecordService {
         return recordReader.getAllCompletedRecord(member);
     }
 
+    public Integer getAllCountCompleteRecord(Member member) {
+        return recordReader.getCountCompleteRecord(member);
+    }
+
     public List<DailyRecord> getMonthRecord(Member member, int year, int month) {
         return recordReader.getMonthRecord(member, year, month);
     }
